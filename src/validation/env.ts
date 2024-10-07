@@ -19,7 +19,7 @@ export const envValidationSchema = Joi.object({
   DATABASE_LOGGING: Joi.boolean().default(false),
   DATABASE_SSL: Joi.boolean().default(false),
 
-  DEBUG: Joi.boolean().default(false),
+  LOG_LEVEL: Joi.string().default('info'),
 })
   .when(Joi.object({ ENVIRONMENT: Joi.valid('production').required() }).unknown(), {
     then: Joi.object({

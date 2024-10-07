@@ -16,5 +16,5 @@ export type EnvironmentVariables = Config & {
 
   npm_package_version: string; //predefined by node from package.json
 
-  DEBUG: boolean;
+  LOG_LEVEL: string;
 };

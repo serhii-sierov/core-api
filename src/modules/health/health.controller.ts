@@ -1,7 +1,7 @@
 import { Controller, Get, HttpStatus, Res } from '@nestjs/common';
 import { Response } from 'express';
 import { HealthService } from './health.service';
-import { TypedConfigService } from 'modules/common/config/config.service';
+import { TypedConfigService } from 'modules/common/modules/config/config.service';
 
 @Controller('health')
 export class HealthController {
@@ -13,6 +13,8 @@ export class HealthController {
   @Get()
   //   @Public()
   status(@Res() res: Response): void {
+    const r = this.configService.get('redis');
+
     res.json({
       status: HttpStatus.OK,
       version: this.healthService.getAppVersion(),
