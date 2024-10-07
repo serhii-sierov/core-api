@@ -13,8 +13,6 @@ export class HealthController {
   @Get()
   //   @Public()
   status(@Res() res: Response): void {
-    const r = this.configService.get('redis');
-
     res.json({
       status: HttpStatus.OK,
       version: this.healthService.getAppVersion(),

@@ -7,7 +7,9 @@ import { LeafTypes, Leaves } from './types';
 export class TypedConfigService {
   constructor(private readonly configService: ConfigService) {}
 
-  get<T extends Leaves<EnvironmentVariables>>(propertyPath: T): LeafTypes<EnvironmentVariables, T> {
+  get<K extends keyof EnvironmentVariables>(propertyPath: K): LeafTypes<EnvironmentVariables, K>;
+  get<T extends Leaves<EnvironmentVariables>>(propertyPath: T): LeafTypes<EnvironmentVariables, T>;
+  get(propertyPath: string): unknown {
     return this.configService.get(propertyPath);
   }
 }
