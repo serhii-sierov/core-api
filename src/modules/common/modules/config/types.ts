@@ -1,9 +1,9 @@
-export type Leaves<T, Depth extends number = 10, D extends any[] = []> = D['length'] extends Depth
-  ? '' // Stop recursion after reaching max depth
+export type Leaves<T, Depth extends number = 10, D extends unknown[] = []> = D['length'] extends Depth
+  ? ''
   : T extends object
     ? {
         [K in keyof T]: K extends string | number
-          ? `${K}${Leaves<T[K], Depth, [any, ...D]> extends '' ? '' : `.${Leaves<T[K], Depth, [any, ...D]>}`}`
+          ? `${K}${Leaves<T[K], Depth, [unknown, ...D]> extends '' ? '' : `.${Leaves<T[K], Depth, [unknown, ...D]>}`}`
           : never;
       }[keyof T]
     : '';
