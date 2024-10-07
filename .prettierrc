@@ -16,11 +16,7 @@
     "^(\\.\\./){5,}\\w",
     "^[./]"
   ],
-  "importOrderParserPlugins": [
-    "[\"decorators-legacy\", { \"decoratorsBeforeExport\": true }]",
-    "typescript",
-    "jsx"
-  ],
+  "importOrderParserPlugins": ["[\"decorators-legacy\", { \"decoratorsBeforeExport\": true }]", "typescript"],
   "importOrderSeparation": true,
   "importOrderSortSpecifiers": true,
   "importOrderGroupNamespaceSpecifiers": false,

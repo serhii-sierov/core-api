@@ -6,7 +6,7 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
-    "target": "ES2021",
+    "target": "ES2023",
     "sourceMap": true,
     "outDir": "./dist",
     "baseUrl": "./src",
@@ -27,7 +27,7 @@
     "allowJs": true,
     "paths": {
       "@graphql": ["../node_modules/graphql"],
-      "@constants": ["./src/constants"]
+      "@constants": ["./constants"]
     }
   }
 }

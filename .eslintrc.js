@@ -1,4 +1,11 @@
 module.exports = {
+  settings: {
+    'import/resolver': {
+      node: {
+        extensions: ['.js', '.jsx', '.ts', '.tsx'],
+      },
+    },
+  },
   parser: '@typescript-eslint/parser',
   parserOptions: {
     project: 'tsconfig.json',
@@ -34,6 +41,8 @@ module.exports = {
     '@typescript-eslint/no-floating-promises': 'warn',
     '@typescript-eslint/only-throw-error': 'error',
     '@typescript-eslint/return-await': ['warn', 'in-try-catch'],
+    '@typescript-eslint/no-unsafe-assignment': 'warn',
+    '@typescript-eslint/no-unsafe-member-access': 'warn',
 
     'prefer-arrow-callback': 'error', // we prefer to use arrow functions as callbacks
     'no-void': ['error', { allowAsStatement: true }], // we allow to use "void" to mark promises we don't wait for
@@ -47,7 +56,9 @@ module.exports = {
     // Imports
     'no-duplicate-imports': 'error', // imports from the same source must be in one record
     'import/no-cycle': ['error', { maxDepth: Infinity }], // we must avoid cycle imports
-    'import/no-extraneous-dependencies': ['error'], // imported external modules must be declared in package.json,
+    'import/no-self-import': 'error', // we must avoid self imports
+    'import/no-unresolved': 'off', // we allow unresolved imports
+    // 'import/no-extraneous-dependencies': ['error'], // imported external modules must be declared in package.json,
 
     // TypeScript
     '@typescript-eslint/no-misused-promises': [
@@ -60,6 +71,7 @@ module.exports = {
     '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', ignoreRestSiblings: true }], // Names of unused vars can start only from an underscore
     '@typescript-eslint/no-unused-expressions': ['error', { allowShortCircuit: true, allowTernary: true }], // Unused expressions only allowed for short circuit / ternary
     '@typescript-eslint/no-inferrable-types': ['error', { ignoreParameters: true, ignoreProperties: true }], // do not set types for boolean, number, string, unless in fn params or obj properties
+    '@typescript-eslint/no-unsafe-enum-comparison': 'off', // comparing enum values with non-enum values is allowed.
 
     // Spell checker
     '@cspell/spellchecker': 'warn',
