@@ -1,0 +1,39 @@
+services:
+  boilerplate:
+    container_name: api
+    build:
+      context: ../core-api
+      target: dev
+    command: sh -c 'yarn && yarn start:dev'
+    # environment:
+    #   NPM_TOKEN: $NPM_TOKEN
+    ports:
+      - 4400:3000
+    volumes:
+      - ../core-api:/app
+      - /app/node_modules
+    depends_on:
+      - postgres
+      - redis
+
+  # Dependencies
+  postgres:
+    container_name: postgres-db
+    image: postgres:17.0
+    restart: always
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: core_api_dev
+    ports:
+      - 5432:5432
+    volumes:
+      - ../data/postgres:/var/lib/postgresql/data
+      - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+
+  redis:
+    container_name: redis-cache
+    image: redis:7.4.0
+    restart: always
+    ports:
+      - 6379:6379
