@@ -1,12 +1,17 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import * as dotenv from 'dotenv';
+import { TypedConfigService } from 'modules/common/modules/config/config.service';
 
 async function bootstrap() {
   dotenv.config();
 
   const app = await NestFactory.create(AppModule);
 
-  await app.listen(3000);
+  const configService = app.get(TypedConfigService);
+
+  const port = configService.get('PORT');
+
+  await app.listen(port);
 }
 bootstrap();

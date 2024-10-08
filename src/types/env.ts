@@ -10,8 +10,8 @@ export type EnvironmentVariables = Config & {
 
   DATABASE_URL: string;
   TEST_DATABASE_URL: string;
-  DATABASE_LOGGING: string;
-  DATABASE_SSL: string;
+  DATABASE_LOGGING: boolean;
+  DATABASE_SSL: boolean;
   IS_LOCAL: boolean;
 
   npm_package_version: string; //predefined by node from package.json
