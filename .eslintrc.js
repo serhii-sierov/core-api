@@ -157,11 +157,10 @@ module.exports = {
       {
         selector: 'variable',
         types: ['boolean'],
-        format: ['StrictPascalCase'],
-        prefix: ['is', 'has', 'show', 'with', 'use', 'should'],
-        filter: {
-          match: false,
-          regex: '^visible|enabled|disabled',
+        format: ['strictCamelCase'],
+        custom: {
+          regex: '^(is|has|show|with|use|should)[a-zA-Z]|[a-zA-Z]+(Visible|Enabled|Disabled)$',
+          match: true,
         },
       },
       {
