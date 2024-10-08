@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
-import { CommonModule } from './modules/common/common.module';
-import { HealthModule } from './modules/health/health.module';
+import { SharedModule } from './modules/shared/shared.module';
+import { HealthModule } from 'modules/health';
 
 @Module({
-  imports: [CommonModule, HealthModule],
+  imports: [SharedModule, HealthModule],
   providers: [],
 })
 export class AppModule {}

@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import * as dotenv from 'dotenv';
-import { TypedConfigService } from 'modules/common/modules/config/config.service';
+import { TypedConfigService } from 'modules/shared/modules/config/config.service';
 
 async function bootstrap() {
   dotenv.config();
@@ -14,4 +14,5 @@ async function bootstrap() {
 
   await app.listen(port);
 }
-bootstrap();
+
+void bootstrap();

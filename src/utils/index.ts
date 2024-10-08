@@ -1,3 +1,3 @@
 export * from './parsers';
 
-export * from './dotenv';
+export * from './env';

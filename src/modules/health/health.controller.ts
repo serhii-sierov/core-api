@@ -1,7 +1,7 @@
 import { Controller, Get, HttpStatus, Res } from '@nestjs/common';
 import { Response } from 'express';
 import { HealthService } from './health.service';
-import { TypedConfigService } from 'modules/common/modules/config/config.service';
+import { TypedConfigService } from 'modules/shared/modules/config/config.service';
 
 @Controller('health')
 export class HealthController {
