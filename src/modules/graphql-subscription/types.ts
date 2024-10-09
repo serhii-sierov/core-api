@@ -1,7 +1,7 @@
 import { ModuleMetadata } from '@nestjs/common';
 
 export type DataObject<T, K extends string> = {
-  [Key in K]: T;
+  [Key in K]: T | null;
 };
 
 export type SubscribeOptions<V, T> = {

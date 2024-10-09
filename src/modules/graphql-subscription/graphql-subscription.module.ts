@@ -11,7 +11,6 @@ export class GraphQLSubscriptionModule {
       Logger,
       {
         provide: GRAPHQL_SUBSCRIPTION_CONFIG_PROVIDER,
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument -- Intentional use of unsafe argument
         useFactory: (...args) => options.useFactory(...args),
         inject: options.inject || [],
       },

@@ -1,8 +1,9 @@
 import { Injectable, LoggerService } from '@nestjs/common';
+// eslint-disable-next-line import/named -- eslint reports an error on Client, but it's a named export
 import { Client, createClient } from 'graphql-ws';
 import { ConnectionParams, DataObject, SubscribeOptions } from './types';
 import { DebugMessages, ErrorMessage } from './constants';
-// import { serializeError } from 'serialize-error';
+import { serializeError } from 'serialize-error';
 import { GraphQLError } from '@graphql';
 import { minimizeString } from 'utils';
 import WebSocket from 'ws';
@@ -33,7 +34,7 @@ export class GraphQLSubscriptionService {
           this.loggerService.log('info', DebugMessages.WEBSOCKET_CLOSED, { connection: this.connectionName });
         },
         error: error => {
-          this.loggerService.error(`${ErrorMessage.WEBSOCKET_ERROR}:`, /*serializeError(error)*/ error, {
+          this.loggerService.error(`${ErrorMessage.WEBSOCKET_ERROR}:`, serializeError(error), {
             connection: this.connectionName,
           });
         },
@@ -41,7 +42,7 @@ export class GraphQLSubscriptionService {
 
       webSocketImpl: WebSocket,
     });
-    loggerService.log(`${this.connectionName} initialized`, GraphQLSubscriptionService.name);
+    this.loggerService.log(`${this.connectionName} initialized`, GraphQLSubscriptionService.name);
   }
 
   public async closeConnection() {
@@ -49,13 +50,13 @@ export class GraphQLSubscriptionService {
   }
 
   private readonly handleSubscriptionNext = <T = unknown>(
-    publishFn: (data: T) => Promise<void>,
-    data: DataObject<T, string>,
+    publishFn: (data?: T) => Promise<void>,
     dataKey: string,
-    errors: unknown[] | undefined,
+    data?: DataObject<T, string>,
+    errors?: GraphQLError[],
   ) => {
     if (errors?.length) {
-      const errorMessage = `${ErrorMessage.UNEXPECTED_WEBSOCKET_ERROR}: ${JSON.stringify(/*serializeError(errors)*/ errors)}`;
+      const errorMessage = `${ErrorMessage.UNEXPECTED_WEBSOCKET_ERROR}: ${JSON.stringify(serializeError(errors))}`;
 
       this.loggerService.error(errorMessage, { connection: this.connectionName });
 
@@ -87,11 +88,10 @@ export class GraphQLSubscriptionService {
         variables,
       },
       {
-        next: ({ data, errors }) => this.handleSubscriptionNext<T>(onNotify, data, operationName, errors),
+        next: ({ data, errors }) => this.handleSubscriptionNext<T>(onNotify, operationName, data, errors),
         error: error => {
           const errorMessage = `${ErrorMessage.SUBSCRIPTION_ERROR} (${operationName}): ${JSON.stringify(
-            // serializeError(error),
-            error,
+            serializeError(error),
           )}`;
 
           this.loggerService.error(errorMessage, { ...queryWithVariables, connection: this.connectionName });
