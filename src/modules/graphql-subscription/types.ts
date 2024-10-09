@@ -22,4 +22,5 @@ export interface GraphQLSubscriptionModuleAsyncOptions extends Pick<ModuleMetada
   provide: string;
   useFactory: (...args: any[]) => GraphQLSubscriptionConnectionOptions;
   inject?: any[];
+  isGlobal?: boolean;
 }

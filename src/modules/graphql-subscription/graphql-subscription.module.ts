@@ -1,10 +1,9 @@
-import { Module, DynamicModule, Global, Logger } from '@nestjs/common';
+import { Module, DynamicModule, Logger } from '@nestjs/common';
 import { GraphQLSubscriptionService } from './graphql-subscription.service';
 import { GraphQLSubscriptionConnectionOptions, GraphQLSubscriptionModuleAsyncOptions } from './types';
 import { GRAPHQL_SUBSCRIPTION_CONFIG_PROVIDER } from './constants';
 
 @Module({})
-@Global()
 export class GraphQLSubscriptionModule {
   static registerAsync(options: GraphQLSubscriptionModuleAsyncOptions): DynamicModule {
     const providers = [
@@ -32,6 +31,7 @@ export class GraphQLSubscriptionModule {
       imports: options.imports || [],
       providers,
       exports: [options.provide],
+      global: options.isGlobal,
     };
   }
 }

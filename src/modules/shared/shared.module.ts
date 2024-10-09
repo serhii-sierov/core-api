@@ -25,6 +25,7 @@ const prodModules = baseModules.concat([
       connectionParams: { additional: { parameter: 'value' } },
     }),
     inject: [TypedConfigService],
+    isGlobal: true,
   }),
   GraphQLSubscriptionModule.registerAsync({
     provide: 'API2',
@@ -32,6 +33,7 @@ const prodModules = baseModules.concat([
       host: configService.get('DATABASE_URL'),
     }),
     inject: [TypedConfigService],
+    isGlobal: true,
   }),
 ]);
 
