@@ -5,6 +5,7 @@ import { CacheModule } from './modules/cache';
 import { LoggerModule } from './modules/logger';
 import { GraphQlModule } from './modules/graphql';
 import { GraphQLSubscriptionModule } from 'modules/graphql-subscription';
+import { DatabaseModule } from './modules/database';
 
 const isTestEnvironment = process.env.NODE_ENV === Environments.TEST;
 
@@ -12,7 +13,7 @@ const baseModules: (DynamicModule | Type<any> | Promise<DynamicModule> | Forward
   ConfigModule,
   LoggerModule,
   CacheModule,
-  // DatabaseModule,
+  DatabaseModule,
   // QueueModule,
 ];
 

@@ -1,5 +1,4 @@
 import { Injectable, LoggerService } from '@nestjs/common';
-// eslint-disable-next-line import/named -- eslint reports an error on Client, but it's a named export
 import { Client, createClient } from 'graphql-ws';
 import { ConnectionParams, DataObject, SubscribeOptions } from './types';
 import { DebugMessages, ErrorMessage } from './constants';
