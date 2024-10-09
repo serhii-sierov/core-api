@@ -166,6 +166,10 @@ module.exports = {
       {
         selector: 'interface',
         format: ['StrictPascalCase'],
+        filter: {
+          regex: '^GraphQL',
+          match: false,
+        },
       },
     ],
   },
