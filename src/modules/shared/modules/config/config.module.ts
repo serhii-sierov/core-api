@@ -4,7 +4,7 @@ import { ConfigModule as NestConfigModule } from '@nestjs/config';
 import { configLoaders } from 'config';
 import { Environments } from '@constants';
 import { envValidationSchema } from 'validation';
-import { TypedConfigService } from './config.service';
+import { AppConfigService } from './config.service';
 
 @Global()
 @Module({
@@ -16,7 +16,7 @@ import { TypedConfigService } from './config.service';
       load: configLoaders,
     }),
   ],
-  providers: [TypedConfigService],
-  exports: [TypedConfigService],
+  providers: [AppConfigService],
+  exports: [AppConfigService],
 })
 export class ConfigModule {}

@@ -2,9 +2,9 @@ import { Global, Module } from '@nestjs/common';
 import { Format } from 'logform';
 import { WinstonModule as NestWinstonModule, utilities } from 'nest-winston';
 import { format, transports } from 'winston';
-import { TypedConfigService } from '../config/config.service';
+import { AppConfigService } from '../config/config.service';
 
-const getTransports = (configService: TypedConfigService): transports.ConsoleTransportInstance[] => {
+const getTransports = (configService: AppConfigService): transports.ConsoleTransportInstance[] => {
   const defaultFormat: Format = format.combine(format.timestamp(), utilities.format.nestLike());
 
   const activeTransports: transports.ConsoleTransportInstance[] = [
@@ -21,10 +21,10 @@ const getTransports = (configService: TypedConfigService): transports.ConsoleTra
 @Module({
   imports: [
     NestWinstonModule.forRootAsync({
-      useFactory: (configService: TypedConfigService) => ({
+      useFactory: (configService: AppConfigService) => ({
         transports: getTransports(configService),
       }),
-      inject: [TypedConfigService],
+      inject: [AppConfigService],
     }),
   ],
 })

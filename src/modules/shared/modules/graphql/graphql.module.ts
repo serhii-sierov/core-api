@@ -10,13 +10,13 @@ import { join } from 'path';
 // import { ErrorMessage } from 'modules/users/types';
 import { isProduction } from 'utils';
 import { ContextParams, getContext } from './utils';
-import { TypedConfigService } from '../config/config.service';
+import { AppConfigService } from '../config/config.service';
 
 @Module({
   imports: [
     NestGraphQLModule.forRootAsync<ApolloDriverConfig>({
       driver: ApolloDriver,
-      useFactory: (loggerService: LoggerService, configService: TypedConfigService, cacheManager: Cache) => {
+      useFactory: (loggerService: LoggerService, configService: AppConfigService, cacheManager: Cache) => {
         return {
           context: (contextParams: ContextParams) =>
             getContext({
@@ -51,7 +51,7 @@ import { TypedConfigService } from '../config/config.service';
         };
       },
       imports: [],
-      inject: [TypedConfigService, CACHE_MANAGER],
+      inject: [AppConfigService, CACHE_MANAGER],
     }),
   ],
 })

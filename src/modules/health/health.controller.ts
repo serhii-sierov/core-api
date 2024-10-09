@@ -1,13 +1,13 @@
 import { Controller, Get, HttpStatus, Res } from '@nestjs/common';
 import { Response } from 'express';
 import { HealthService } from './health.service';
-import { TypedConfigService } from 'modules/shared/modules/config/config.service';
+import { AppConfigService } from 'modules/shared/modules/config/config.service';
 
 @Controller('health')
 export class HealthController {
   constructor(
     private readonly healthService: HealthService,
-    private readonly configService: TypedConfigService,
+    private readonly configService: AppConfigService,
   ) {}
 
   @Get()

@@ -4,7 +4,7 @@ import { EnvironmentVariables } from 'types';
 import { LeafTypes, Leaves } from './types';
 
 @Injectable()
-export class TypedConfigService {
+export class AppConfigService {
   constructor(private readonly configService: ConfigService) {}
 
   get<K extends keyof EnvironmentVariables>(propertyPath: K): LeafTypes<EnvironmentVariables, K>;

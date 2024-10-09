@@ -3,7 +3,7 @@ import { ContextFunction } from 'apollo-server-core';
 import { Response } from 'express';
 
 import { ExtendedRequest, GqlContext, WebSocketConnectionParams } from 'types';
-import { TypedConfigService } from '../../config/config.service';
+import { AppConfigService } from '../../config/config.service';
 import { LoggerService } from '@nestjs/common';
 
 export type ContextParams = {
@@ -11,7 +11,7 @@ export type ContextParams = {
   res: Response;
   connectionParams?: WebSocketConnectionParams;
   loggerService: LoggerService;
-  configService: TypedConfigService;
+  configService: AppConfigService;
   cacheManager: Cache;
 };
 

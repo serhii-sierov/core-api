@@ -1,5 +1,5 @@
 import { DynamicModule, ForwardReference, Module, Type } from '@nestjs/common';
-import { ConfigModule, TypedConfigService } from './modules/config';
+import { ConfigModule, AppConfigService } from './modules/config';
 import { Environments } from '@constants';
 import { CacheModule } from './modules/cache';
 import { LoggerModule } from './modules/logger';
@@ -21,19 +21,19 @@ const prodModules = baseModules.concat([
   GraphQlModule,
   GraphQLSubscriptionModule.registerAsync({
     provide: 'API1',
-    useFactory: (configService: TypedConfigService) => ({
+    useFactory: (configService: AppConfigService) => ({
       host: configService.get('DATABASE_URL'),
       connectionParams: { additional: { parameter: 'value' } },
     }),
-    inject: [TypedConfigService],
+    inject: [AppConfigService],
     isGlobal: true,
   }),
   GraphQLSubscriptionModule.registerAsync({
     provide: 'API2',
-    useFactory: (configService: TypedConfigService) => ({
+    useFactory: (configService: AppConfigService) => ({
       host: configService.get('DATABASE_URL'),
     }),
-    inject: [TypedConfigService],
+    inject: [AppConfigService],
     isGlobal: true,
   }),
 ]);
