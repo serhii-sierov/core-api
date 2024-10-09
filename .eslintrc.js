@@ -52,7 +52,7 @@ module.exports = {
     'eslint-comments/no-unlimited-disable': 'error', // we must avoid unlimited eslint-disable
     'no-underscore-dangle': ['off'], // we regulate an use of an underscore by other rules
     'quote-props': ['error', 'consistent-as-needed'], // object properties should not use quotes unless necessary
-    quotes: ['error', 'single', { avoidEscape: true }], // use single quotes for strings
+    // quotes: ['warn', 'single', { avoidEscape: true }], // use single quotes for strings
     curly: ['error', 'all'], // we always use {} in control statements
     'no-console': 'warn', // warning on use of console.log() to call attention to unintentional use
 
@@ -61,6 +61,7 @@ module.exports = {
     'import/no-cycle': ['error', { maxDepth: Infinity }], // we must avoid cycle imports
     'import/no-self-import': 'error', // we must avoid self imports
     'import/no-unresolved': 'off', // we allow unresolved imports
+    'import/named': 'off', // we allow named imports
     // 'import/no-extraneous-dependencies': ['error'], // imported external modules must be declared in package.json,
 
     // TypeScript

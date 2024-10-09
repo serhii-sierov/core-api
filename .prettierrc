@@ -16,9 +16,13 @@
     "^(\\.\\./){5,}\\w",
     "^[./]"
   ],
-  "importOrderParserPlugins": ["[\"decorators-legacy\", { \"decoratorsBeforeExport\": true }]", "typescript"],
+  "importOrderParserPlugins": [
+    "[\"decorators-legacy\", { \"decoratorsBeforeExport\": true }]",
+    "typescript"
+  ],
   "importOrderSeparation": true,
   "importOrderSortSpecifiers": true,
   "importOrderGroupNamespaceSpecifiers": false,
-  "importOrderCaseInsensitive": true
+  "importOrderCaseInsensitive": true,
+  "plugins": ["@trivago/prettier-plugin-sort-imports"]
 }
