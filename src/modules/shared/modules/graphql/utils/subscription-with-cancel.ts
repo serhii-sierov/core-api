@@ -1,4 +1,4 @@
-export const withCancel = <T>(
+export const withCancel = <T, TReturn = any>(
   asyncIterator: AsyncIterator<T | undefined>,
   onCancel: () => void,
 ): AsyncIterator<T | undefined> => {
@@ -6,12 +6,12 @@ export const withCancel = <T>(
     asyncIterator.return = () => Promise.resolve({ value: undefined, done: true });
   }
 
-  const savedReturn = asyncIterator.return.bind(asyncIterator);
+  const originalReturn = asyncIterator.return.bind(asyncIterator) as typeof asyncIterator.return;
 
-  asyncIterator.return = () => {
+  asyncIterator.return = (value?: TReturn | PromiseLike<TReturn>) => {
     onCancel?.();
 
-    return savedReturn();
+    return originalReturn(value);
   };
 
   return asyncIterator;
