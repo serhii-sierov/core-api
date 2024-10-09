@@ -31,7 +31,7 @@ module.exports = {
     node: true,
     jest: true,
   },
-  ignorePatterns: ['.eslintrc.js'],
+  ignorePatterns: ['.eslintrc.js', 'src/graphql.ts'],
   rules: {
     // General
     '@typescript-eslint/interface-name-prefix': 'off',
@@ -43,10 +43,13 @@ module.exports = {
     '@typescript-eslint/return-await': ['warn', 'in-try-catch'],
     '@typescript-eslint/no-unsafe-assignment': 'warn',
     '@typescript-eslint/no-unsafe-member-access': 'warn',
+    '@typescript-eslint/no-unsafe-argument': 'warn',
 
     'prefer-arrow-callback': 'error', // we prefer to use arrow functions as callbacks
     'no-void': ['error', { allowAsStatement: true }], // we allow to use "void" to mark promises we don't wait for
-    'eslint-comments/require-description': ['error', { ignore: ['eslint-enable'] }], // eslint-comments require description except eslint-enable
+    'eslint-comments/require-description': ['error', { ignore: ['eslint-enable', 'eslint-disable'] }], // eslint-comments require description except eslint-enable
+    'eslint-comments/disable-enable-pair': ['error', { allowWholeFile: true }], // eslint-comments must be paired
+    'eslint-comments/no-unlimited-disable': 'error', // we must avoid unlimited eslint-disable
     'no-underscore-dangle': ['off'], // we regulate an use of an underscore by other rules
     'quote-props': ['error', 'consistent-as-needed'], // object properties should not use quotes unless necessary
     quotes: ['error', 'single', { avoidEscape: true }], // use single quotes for strings

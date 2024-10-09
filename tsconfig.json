@@ -28,6 +28,7 @@
     "paths": {
       "@graphql": ["../node_modules/graphql"],
       "@constants": ["./constants"]
-    }
+    },
+    "inlineSources": true
   }
 }
