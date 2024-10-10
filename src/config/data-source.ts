@@ -1,11 +1,12 @@
 /* eslint-disable @typescript-eslint/naming-convention */
+import { Environments } from '@constants';
 import * as dotenv from 'dotenv';
 import * as pg from 'pg';
 import { DataSource, DataSourceOptions } from 'typeorm';
 
-import { Environments } from '@constants';
-import { NamingStrategy } from './naming-strategy';
 import { patchQueryBuilder } from 'utils/typeorm';
+
+import { NamingStrategy } from './naming-strategy';
 
 dotenv.config();
 

@@ -1,7 +1,8 @@
-import { Module, DynamicModule, Logger } from '@nestjs/common';
+import { DynamicModule, Logger, Module } from '@nestjs/common';
+
+import { GRAPHQL_SUBSCRIPTION_CONFIG_PROVIDER } from './constants';
 import { GraphQLSubscriptionService } from './graphql-subscription.service';
 import { GraphQLSubscriptionConnectionOptions, GraphQLSubscriptionModuleAsyncOptions } from './types';
-import { GRAPHQL_SUBSCRIPTION_CONFIG_PROVIDER } from './constants';
 
 @Module({})
 export class GraphQLSubscriptionModule {

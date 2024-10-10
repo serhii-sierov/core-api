@@ -2,6 +2,7 @@ import { Global, Module } from '@nestjs/common';
 import { Format } from 'logform';
 import { WinstonModule as NestWinstonModule, utilities } from 'nest-winston';
 import { format, transports } from 'winston';
+
 import { AppConfigService } from '../config/config.service';
 
 const getTransports = (configService: AppConfigService): transports.ConsoleTransportInstance[] => {

@@ -1,11 +1,13 @@
-import { DynamicModule, ForwardReference, Module, Type } from '@nestjs/common';
-import { ConfigModule, AppConfigService } from './modules/config';
 import { Environments } from '@constants';
-import { CacheModule } from './modules/cache';
-import { LoggerModule } from './modules/logger';
-import { GraphQlModule } from './modules/graphql';
+import { DynamicModule, ForwardReference, Module, Type } from '@nestjs/common';
+
 import { GraphQLSubscriptionModule } from 'modules/graphql-subscription';
+
+import { CacheModule } from './modules/cache';
+import { AppConfigService, ConfigModule } from './modules/config';
 import { DatabaseModule } from './modules/database';
+import { GraphQlModule } from './modules/graphql';
+import { LoggerModule } from './modules/logger';
 
 const isTestEnvironment = process.env.NODE_ENV === Environments.TEST;
 

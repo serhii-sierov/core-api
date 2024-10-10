@@ -1,6 +1,6 @@
-import { Config } from 'config';
-
 import { Environments } from '@constants';
+
+import { Config } from 'config';
 
 export type EnvironmentVariables = Config & {
   NODE_ENV: Environments;

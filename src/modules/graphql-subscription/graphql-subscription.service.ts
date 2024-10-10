@@ -1,11 +1,13 @@
+import { GraphQLError } from '@graphql';
 import { Injectable, LoggerService } from '@nestjs/common';
 import { Client, createClient } from 'graphql-ws';
-import { ConnectionParams, DataObject, SubscribeOptions } from './types';
-import { DebugMessages, ErrorMessage } from './constants';
 import { serializeError } from 'serialize-error';
-import { GraphQLError } from '@graphql';
-import { minimizeString } from 'utils';
 import WebSocket from 'ws';
+
+import { minimizeString } from 'utils';
+
+import { DebugMessages, ErrorMessage } from './constants';
+import { ConnectionParams, DataObject, SubscribeOptions } from './types';
 
 @Injectable()
 export class GraphQLSubscriptionService {

@@ -1,6 +1,6 @@
 // import { GraphQLError } from '@graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
-import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
+import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 import { LoggerService, Module } from '@nestjs/common';
 import { GraphQLModule as NestGraphQLModule } from '@nestjs/graphql';
 import { GraphQLJSON } from 'graphql-type-json';
@@ -9,7 +9,9 @@ import { join } from 'path';
 
 // import { ErrorMessage } from 'modules/users/types';
 import { isProduction } from 'utils';
+
 import { ContextParams, getContext } from './utils';
+
 import { AppConfigService } from '../config/config.service';
 
 @Module({

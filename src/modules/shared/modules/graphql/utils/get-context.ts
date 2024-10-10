@@ -1,10 +1,11 @@
 import { Cache } from '@nestjs/cache-manager';
+import { LoggerService } from '@nestjs/common';
 import { ContextFunction } from 'apollo-server-core';
 import { Response } from 'express';
 
 import { ExtendedRequest, GqlContext, WebSocketConnectionParams } from 'types';
+
 import { AppConfigService } from '../../config/config.service';
-import { LoggerService } from '@nestjs/common';
 
 export type ContextParams = {
   req: ExtendedRequest;

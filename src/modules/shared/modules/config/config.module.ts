@@ -1,9 +1,10 @@
+import { Environments } from '@constants';
 import { Global, Module } from '@nestjs/common';
 import { ConfigModule as NestConfigModule } from '@nestjs/config';
 
 import { configLoaders } from 'config';
-import { Environments } from '@constants';
 import { envValidationSchema } from 'validation';
+
 import { AppConfigService } from './config.service';
 
 @Global()

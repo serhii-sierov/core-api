@@ -1,5 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { readFileSync } from 'fs';
+
 import { GraphQLSubscriptionService } from 'modules/graphql-subscription';
 
 @Injectable()
