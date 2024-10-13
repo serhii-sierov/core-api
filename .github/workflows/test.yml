@@ -15,7 +15,6 @@ jobs:
       DATABASE_PASSWORD: root
       TEST_DATABASE_URL: postgres://root:root@localhost:5432/core_api_test
       # NPM_TOKEN: ${{ secrets.NPM_AUTOMATION_AUTH_TOKEN }}
-      ENVIRONMENT: test
       DB_SSL: false
       REDIS_URL: redis://localhost:6379
       AWS_CLOUDFRONT_ORIGIN: placeholder

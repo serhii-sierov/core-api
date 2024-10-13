@@ -14,7 +14,7 @@ const isTestEnvironment = process.env.NODE_ENV === Environments.TEST;
 const url = isTestEnvironment ? process.env.TEST_DATABASE_URL : process.env.DATABASE_URL;
 
 // when running migrations, determine directory / extension from the filename
-const [dir, ext] = RegExp(/\/(src|dist|dist\/src)\/modules\/database\/data-source\.(js|ts)$/i)
+const [dir, ext] = RegExp(/(src|dist)\/config\/data-source\.(js|ts)/i)
   .exec(__filename)
   ?.slice(1) ?? ['dist', 'js'];
 
@@ -33,7 +33,7 @@ export const config: DataSourceOptions = {
   synchronize: false,
   entities: [`${dir}/**/*.entity.${ext}`],
   subscribers: [`${dir}/**/*.subscriber.${ext}`],
-  migrations: [`${dir}/modules/database/migrations/*.${ext}`],
+  migrations: [`${dir}/modules/shared/modules/database/migrations/*.${ext}`],
 };
 
 export const dataSource = new DataSource(config);

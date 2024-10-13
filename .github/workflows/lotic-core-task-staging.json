@@ -43,10 +43,6 @@
           "valueFrom": "arn:aws:secretsmanager:us-east-1:496510935362:secret:staging/lotic-core/api-TSrat0:AWS_S3_PUBLIC_ASSETS_BUCKET::"
         },
         {
-          "name": "ENVIRONMENT",
-          "valueFrom": "arn:aws:secretsmanager:us-east-1:496510935362:secret:staging/lotic-core/api-TSrat0:ENVIRONMENT::"
-        },
-        {
           "name": "TRANSACTIONAL_EMAIL_FROM",
           "valueFrom": "arn:aws:secretsmanager:us-east-1:496510935362:secret:staging/lotic-core/api-TSrat0:TRANSACTIONAL_EMAIL_FROM::"
         },

@@ -12,13 +12,13 @@ import { isProduction } from 'utils';
 
 import { ContextParams, getContext } from './utils';
 
-import { AppConfigService } from '../config/config.service';
+import { AppConfigService } from '../config';
 
 @Module({
   imports: [
     NestGraphQLModule.forRootAsync<ApolloDriverConfig>({
       driver: ApolloDriver,
-      useFactory: (loggerService: LoggerService, configService: AppConfigService, cacheManager: Cache) => {
+      useFactory: (configService: AppConfigService, cacheManager: Cache, loggerService: LoggerService) => {
         return {
           context: (contextParams: ContextParams) =>
             getContext({

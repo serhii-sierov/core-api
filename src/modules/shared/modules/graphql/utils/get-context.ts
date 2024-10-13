@@ -3,12 +3,12 @@ import { LoggerService } from '@nestjs/common';
 import { ContextFunction } from 'apollo-server-core';
 import { Response } from 'express';
 
-import { ExtendedRequest, GqlContext, WebSocketConnectionParams } from 'types';
+import { AppRequest, GqlContext, WebSocketConnectionParams } from 'types';
 
 import { AppConfigService } from '../../config/config.service';
 
 export type ContextParams = {
-  req: ExtendedRequest;
+  req: AppRequest;
   res: Response;
   connectionParams?: WebSocketConnectionParams;
   loggerService: LoggerService;
@@ -26,6 +26,7 @@ export const getContext: ContextFunction<ContextParams, GqlContext> = ({
 }): GqlContext => {
   try {
     const context: GqlContext = { req, res };
+    // console.log(req);
 
     if (connectionParams) {
       return context;

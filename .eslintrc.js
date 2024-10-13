@@ -142,8 +142,8 @@ module.exports = {
         format: ['strictCamelCase'],
       },
       {
-        selector: 'function',
-        format: ['strictCamelCase'],
+        selector: ['function', 'classMethod'],
+        format: ['camelCase'],
       },
       {
         selector: 'enum',

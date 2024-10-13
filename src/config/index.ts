@@ -5,3 +5,5 @@ export * from './redis';
 export * from './data-source';
 
 export * from './naming-strategy';
+
+export * from './jwt';
