@@ -1,0 +1,40 @@
+extend type Mutation {
+  signUp(input: SignUpInput!): SignUpResponse
+  signIn(input: SignInInput!): SignInResponse
+  signOut(input: SignOutInput): Boolean
+  refreshToken(input: RefreshTokenInput): Boolean
+  resetPassword(input: ResetPasswordInput!): DefaultResponse
+}
+
+type SignInResponse {
+  user: User
+}
+
+type SignUpResponse {
+  user: User
+}
+
+input SignInInput {
+  email: String!
+  password: String!
+  rememberMe: Boolean
+  device: String
+}
+
+input SignUpInput {
+  email: String!
+  password: String!
+  device: String
+}
+
+input SignOutInput {
+  isAllDevices: Boolean
+}
+
+input RefreshTokenInput {
+  device: String
+}
+
+input ResetPasswordInput {
+  email: String!
+}
