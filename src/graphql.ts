@@ -29,6 +29,11 @@ export interface RefreshTokenInput {
     device?: Nullable<string>;
 }
 
+export interface ChangePasswordInput {
+    oldPassword: string;
+    newPassword: string;
+}
+
 export interface ResetPasswordInput {
     email: string;
 }
@@ -49,7 +54,8 @@ export interface IMutation {
     signIn(input: SignInInput): Nullable<SignInResponse> | Promise<Nullable<SignInResponse>>;
     signOut(input?: Nullable<SignOutInput>): Nullable<boolean> | Promise<Nullable<boolean>>;
     refreshToken(input?: Nullable<RefreshTokenInput>): Nullable<boolean> | Promise<Nullable<boolean>>;
-    resetPassword(input: ResetPasswordInput): Nullable<DefaultResponse> | Promise<Nullable<DefaultResponse>>;
+    changePassword(input: ChangePasswordInput): Nullable<boolean> | Promise<Nullable<boolean>>;
+    resetPassword(input: ResetPasswordInput): Nullable<boolean> | Promise<Nullable<boolean>>;
 }
 
 export interface ISubscription {

@@ -2,14 +2,26 @@ import { UseGuards } from '@nestjs/common';
 import { Args, Context, Mutation, Resolver } from '@nestjs/graphql';
 import { Response } from 'express';
 
-import { RefreshTokenInput, SignInInput, SignInResponse, SignOutInput, SignUpInput, SignUpResponse } from 'graphql';
+import {
+  ChangePasswordInput,
+  RefreshTokenInput,
+  SignInInput,
+  SignInResponse,
+  SignOutInput,
+  SignUpInput,
+  SignUpResponse,
+} from 'graphql';
 import { JoiValidationPipe } from 'pipes';
 import { ContextUser, GqlContext } from 'types';
 
 import { CurrentUser, Public } from './decorators';
 import { RefreshTokenGuard } from './guards';
 import { AuthService } from './services';
-import { signInInputValidationSchema, signUpInputValidationSchema } from './validation';
+import {
+  changePasswordInputValidationSchema,
+  signInInputValidationSchema,
+  signUpInputValidationSchema,
+} from './validation';
 
 @Resolver()
 export class AuthResolver {
@@ -60,5 +72,15 @@ export class AuthResolver {
     const { refreshToken } = req.cookies;
 
     return this.authService.refreshToken({ refreshToken, device }, res);
+  }
+
+  @Mutation('changePassword')
+  async changePassword(
+    @Args('input', new JoiValidationPipe(changePasswordInputValidationSchema)) input: ChangePasswordInput,
+    @CurrentUser() currentUser: ContextUser,
+  ): Promise<boolean> {
+    const { oldPassword, newPassword } = input;
+
+    return this.authService.changePassword(oldPassword, newPassword, currentUser.id);
   }
 }

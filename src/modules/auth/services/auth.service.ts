@@ -164,6 +164,22 @@ export class AuthService {
     return true;
   };
 
+  changePassword = async (oldPassword: string, newPassword: string, userId: number): Promise<boolean> => {
+    const user = await this.userService.findOne({ where: { id: userId } });
+
+    const isPasswordValid = await this.validatePassword(oldPassword, user.password);
+
+    if (!isPasswordValid) {
+      throw new UnauthorizedException();
+    }
+
+    const hashedPassword = await hash(newPassword);
+
+    await this.userService.update({ id: userId }, { password: hashedPassword });
+
+    return true;
+  };
+
   forgotPassword = async (email: string): Promise<void> => {
     const user = await this.userService.findOne({ where: { email } });
 

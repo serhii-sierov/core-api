@@ -3,7 +3,8 @@ extend type Mutation {
   signIn(input: SignInInput!): SignInResponse
   signOut(input: SignOutInput): Boolean
   refreshToken(input: RefreshTokenInput): Boolean
-  resetPassword(input: ResetPasswordInput!): DefaultResponse
+  changePassword(input: ChangePasswordInput!): Boolean
+  resetPassword(input: ResetPasswordInput!): Boolean
 }
 
 type SignInResponse {
@@ -33,6 +34,11 @@ input SignOutInput {
 
 input RefreshTokenInput {
   device: String
+}
+
+input ChangePasswordInput {
+  oldPassword: String!
+  newPassword: String!
 }
 
 input ResetPasswordInput {
