@@ -1,12 +1,13 @@
 import { Response } from 'express';
 
-import { ContextUserType } from './context-user';
-import { ExtendedRequest } from './request';
+import { AppRequest } from './app-request';
+import { ContextUser } from './context-user';
 
 export interface GqlContext {
-  req: ExtendedRequest;
+  req: AppRequest;
   res: Response;
-  user?: ContextUserType;
+  connectionParams?: WebSocketConnectionParams;
+  user?: ContextUser;
 }
 
 export interface WebSocketConnectionParams {
