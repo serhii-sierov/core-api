@@ -1,15 +1,26 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+
+import { RefreshTokenEntity } from 'modules/auth/entities/refresh-token.entity';
+
+// eslint-disable-next-line import/no-cycle -- Circular dependency inevitable here
+import { ProviderEntity } from './provider.entity';
 
 @Entity('users')
 export class UserEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
-  name: string;
-
-  @Column()
+  @Column({ unique: true })
   email: string;
+
+  @Column({ nullable: true })
+  password: string; // For local users
+
+  @OneToMany(() => ProviderEntity, provider => provider.user, { cascade: true })
+  providers: ProviderEntity[]; // Linked OAuth providers
+
+  @OneToMany(() => RefreshTokenEntity, refreshToken => refreshToken.user, { cascade: true })
+  refreshTokens: RefreshTokenEntity[]; // Associated refresh tokens
 
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;

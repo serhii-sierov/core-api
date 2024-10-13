@@ -7,3 +7,5 @@ export * from './graphql';
 export * from './user-types';
 
 export * from './context-user';
+
+export * from './service';
