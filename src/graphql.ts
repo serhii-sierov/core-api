@@ -42,19 +42,27 @@ export interface DefaultResponseInterface {
     message?: Nullable<string>;
 }
 
-export interface IQuery {
-    _empty(): Nullable<string> | Promise<Nullable<string>>;
-    user(): Nullable<User> | Promise<Nullable<User>>;
-}
-
 export interface IMutation {
-    _empty(): Nullable<string> | Promise<Nullable<string>>;
     signUp(input: SignUpInput): Nullable<SignUpResponse> | Promise<Nullable<SignUpResponse>>;
     signIn(input: SignInInput): Nullable<SignInResponse> | Promise<Nullable<SignInResponse>>;
     signOut(input?: Nullable<SignOutInput>): Nullable<boolean> | Promise<Nullable<boolean>>;
     refreshToken(input?: Nullable<RefreshTokenInput>): Nullable<boolean> | Promise<Nullable<boolean>>;
     changePassword(input: ChangePasswordInput): Nullable<boolean> | Promise<Nullable<boolean>>;
     resetPassword(input: ResetPasswordInput): Nullable<boolean> | Promise<Nullable<boolean>>;
+    _empty(): Nullable<string> | Promise<Nullable<string>>;
+}
+
+export interface SignInResponse {
+    user?: Nullable<User>;
+}
+
+export interface SignUpResponse {
+    user?: Nullable<User>;
+}
+
+export interface IQuery {
+    _empty(): Nullable<string> | Promise<Nullable<string>>;
+    user(): Nullable<User> | Promise<Nullable<User>>;
 }
 
 export interface ISubscription {
@@ -64,14 +72,6 @@ export interface ISubscription {
 export interface DefaultResponse extends DefaultResponseInterface {
     status: string;
     message?: Nullable<string>;
-}
-
-export interface SignInResponse {
-    user?: Nullable<User>;
-}
-
-export interface SignUpResponse {
-    user?: Nullable<User>;
 }
 
 export interface User {
