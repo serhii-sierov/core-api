@@ -13,8 +13,8 @@ export class UserEntity {
   @Column({ unique: true })
   email: string;
 
-  @Column({ nullable: true })
-  password: string; // For local users
+  @Column({ type: 'varchar', nullable: true })
+  password: string | null; // For local users
 
   @OneToMany(() => ProviderEntity, provider => provider.user, { cascade: true })
   providers: ProviderEntity[]; // Linked OAuth providers

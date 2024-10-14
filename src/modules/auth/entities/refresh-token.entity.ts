@@ -20,8 +20,8 @@ export class RefreshTokenEntity {
   @Column({ unique: true })
   token: string; // The refresh token value
 
-  @Column({ nullable: true })
-  device: string; // The name of the device the token is associated with
+  @Column({ type: 'varchar', nullable: true })
+  device?: string | null; // The name of the device the token is associated with
 
   @Column({ type: 'timestamptz' })
   expiresAt: Date; // Expiry date of the refresh token
