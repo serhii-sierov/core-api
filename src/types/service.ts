@@ -2,6 +2,8 @@ import { DeepPartial, EntityManager, FindManyOptions, FindOneOptions, FindOption
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 import { UpsertOptions } from 'typeorm/repository/UpsertOptions';
 
+export type UpdateResult<Entity> = [affectedCount: number, affectedRows?: Entity[]];
+
 export type GetIdsByExcludedOptions<Entity> = {
   ids: number[];
   isExclude?: boolean;
@@ -31,13 +33,13 @@ export type Update<Entity> = (
   where: FindOptionsWhere<Entity>,
   partialEntity: QueryDeepPartialEntity<Entity>,
   transactionManager?: EntityManager,
-) => Promise<[affectedCount: number, affectedRows?: Entity[]]>;
+) => Promise<UpdateResult<Entity>>;
 
 export type Upsert<Entity> = (
   partialEntity: QueryDeepPartialEntity<Entity>,
   upsertOptions: UpsertOptions<Entity>,
   transactionManager?: EntityManager,
-) => Promise<[affectedCount: number, affectedRows?: Entity[]]>;
+) => Promise<UpdateResult<Entity>>;
 
 export type Destroy<Entity> = (where: FindOptionsWhere<Entity>, transactionManager?: EntityManager) => Promise<number>;
 
@@ -50,7 +52,7 @@ type IncrementOptions<Entity> = {
 export type Increment<Entity> = (
   options: IncrementOptions<Entity>,
   transactionManager?: EntityManager,
-) => Promise<[affectedRows: Entity[], affectedCount?: number]>;
+) => Promise<UpdateResult<Entity>>;
 
 export type FindOrCreate<Entity> = (
   options: FindOneOptions<Entity>,

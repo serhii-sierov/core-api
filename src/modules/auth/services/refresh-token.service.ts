@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DeepPartial, EntityManager, LessThan, Repository } from 'typeorm';
 
-import { Create, Destroy, Exists, FindAll, FindOne, Update, Upsert } from 'types';
+import { Create, Destroy, Exists, FindAll, FindOne, Update, UpdateResult, Upsert } from 'types';
 
 import { RefreshTokenEntity } from '../entities/refresh-token.entity';
 
@@ -45,7 +45,7 @@ export class RefreshTokenService {
   update: Update<RefreshTokenEntity> = async (where, entity, transactionManager) => {
     const repository = this.getRepository(transactionManager);
 
-    const { affected } = await repository.update(where, entity);
+    const { affected = 0 } = await repository.update(where, entity);
     const affectedRows = await this.findAll({ where });
 
     return [affected, affectedRows];
@@ -63,14 +63,17 @@ export class RefreshTokenService {
     const repository: Repository<RefreshTokenEntity> = this.getRepository(transactionManager);
     const { affected } = await repository.delete(where);
 
-    return affected;
+    return affected ?? 0;
   };
 
-  insertOrUpdateToken = async (oldToken: string, data: DeepPartial<RefreshTokenEntity>) => {
+  insertOrUpdateToken = async (
+    data: DeepPartial<RefreshTokenEntity>,
+    oldToken?: string,
+  ): Promise<UpdateResult<RefreshTokenEntity>> => {
     const isTokenExists = oldToken && (await this.refreshTokenRepository.exists({ where: { token: oldToken } }));
 
     if (!isTokenExists) {
-      return this.create(data);
+      return [1, [await this.create(data)]];
     }
 
     return this.update({ token: oldToken }, data);

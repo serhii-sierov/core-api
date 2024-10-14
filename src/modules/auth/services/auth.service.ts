@@ -84,12 +84,15 @@ export class AuthService {
 
     const expiresAt = new Date(Date.now() + ms(this.jwtConfig.refreshToken.expiresIn));
 
-    await this.refreshTokenService.insertOrUpdateToken(requestRefreshToken, {
-      userId: user.id,
-      token: tokens.refreshToken,
-      expiresAt,
-      device,
-    });
+    await this.refreshTokenService.insertOrUpdateToken(
+      {
+        userId: user.id,
+        token: tokens.refreshToken,
+        expiresAt,
+        device,
+      },
+      requestRefreshToken,
+    );
 
     return { user };
   };
@@ -114,7 +117,7 @@ export class AuthService {
   validateUser = async (email: string, password: string): Promise<UserEntity | null> => {
     const user = await this.userService.findOne({ where: { email } });
 
-    if (user && (await this.validatePassword(password, user.password))) {
+    if (user?.password && (await this.validatePassword(password, user.password))) {
       return user;
     }
 
@@ -135,7 +138,9 @@ export class AuthService {
 
   refreshToken = async (options: RefreshTokenOptions, res: Response): Promise<boolean> => {
     const { refreshToken, device } = options;
-    const refreshTokenEntity = await this.refreshTokenService.findOne({ where: { token: refreshToken } });
+
+    const refreshTokenEntity =
+      (Boolean(refreshToken) || null) && (await this.refreshTokenService.findOne({ where: { token: refreshToken } }));
 
     if (!refreshTokenEntity) {
       throw new UnauthorizedException();
@@ -167,7 +172,7 @@ export class AuthService {
   changePassword = async (oldPassword: string, newPassword: string, userId: number): Promise<boolean> => {
     const user = await this.userService.findOne({ where: { id: userId } });
 
-    const isPasswordValid = await this.validatePassword(oldPassword, user.password);
+    const isPasswordValid = Boolean(user?.password && (await this.validatePassword(oldPassword, user.password)));
 
     if (!isPasswordValid) {
       throw new UnauthorizedException();
@@ -194,7 +199,7 @@ export class AuthService {
     return compareHash(plainPassword, hashedPassword);
   };
 
-  private readonly setTokensCookie = (tokens: Tokens, res: Response) => {
+  private readonly setTokensCookie = (tokens: Tokens, res: Response): void => {
     res.cookie(AppCookie.ACCESS_TOKEN, tokens.accessToken, {
       httpOnly: true,
       secure: true,
@@ -207,7 +212,7 @@ export class AuthService {
     });
   };
 
-  private readonly clearTokensCookie = (res: Response) => {
+  private readonly clearTokensCookie = (res: Response): void => {
     res.clearCookie(AppCookie.ACCESS_TOKEN);
     res.clearCookie(AppCookie.REFRESH_TOKEN);
   };
