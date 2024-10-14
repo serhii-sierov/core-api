@@ -1,4 +1,3 @@
-# cd ../lotic-configs
 docker compose up boilerplate -d
 result=$(docker compose exec boilerplate yarn migration:generate test 2>/dev/null)
 if [[ $result != *"No changes in database schema were found"* ]];
