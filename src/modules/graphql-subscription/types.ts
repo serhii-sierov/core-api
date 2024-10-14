@@ -1,14 +1,16 @@
-import { ModuleMetadata } from '@nestjs/common';
+import { InjectionToken, ModuleMetadata, OptionalFactoryDependency } from '@nestjs/common';
 
 export type DataObject<T, K extends string> = {
-  [Key in K]: T | null;
+  [Key in K]?: T | null;
 };
+
+export type NotifyFunction<T> = (value?: T | null) => Promise<void>;
 
 export type SubscribeOptions<V, T> = {
   operationName: string;
   query: string;
   variables?: V;
-  onNotify: (value: T) => Promise<void>;
+  onNotify: NotifyFunction<T>;
 };
 
 export type ConnectionParams<P extends Record<string, unknown> = Record<string, unknown>> = P | (() => Promise<P> | P);
@@ -21,6 +23,6 @@ export interface GraphQLSubscriptionConnectionOptions {
 export interface GraphQLSubscriptionModuleAsyncOptions extends Pick<ModuleMetadata, 'imports'> {
   provide: string;
   useFactory: (...args: any[]) => GraphQLSubscriptionConnectionOptions;
-  inject?: any[];
+  inject?: (InjectionToken | OptionalFactoryDependency)[];
   isGlobal?: boolean;
 }

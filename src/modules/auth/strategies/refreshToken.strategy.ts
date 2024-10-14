@@ -4,7 +4,7 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 
 import { AppConfigService } from 'modules/shared/modules/config';
 import { UserService } from 'modules/user/services';
-import { AppRequest } from 'types';
+import { AppRequest, ContextUser } from 'types';
 
 import { JwtPayload } from '../types';
 
@@ -16,7 +16,7 @@ export class RefreshTokenStrategy extends PassportStrategy(Strategy, 'jwt-refres
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
-        (request: AppRequest) => {
+        (request: AppRequest): string | null => {
           const token = request?.cookies['refreshToken'];
 
           if (!token) {
@@ -31,7 +31,7 @@ export class RefreshTokenStrategy extends PassportStrategy(Strategy, 'jwt-refres
     });
   }
 
-  async validate(_req: AppRequest, payload: JwtPayload) {
+  async validate(_req: AppRequest, payload: JwtPayload): Promise<ContextUser> {
     const user = await this.userService.findOne({ where: { id: Number(payload.sub) } });
 
     if (!user) {

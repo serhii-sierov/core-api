@@ -4,7 +4,7 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 
 import { AppConfigService } from 'modules/shared/modules/config';
 import { UserService } from 'modules/user/services';
-import { AppRequest } from 'types';
+import { AppRequest, ContextUser } from 'types';
 
 import { JwtPayload } from '../types';
 
@@ -16,7 +16,7 @@ export class AccessTokenStrategy extends PassportStrategy(Strategy, 'jwt') {
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
-        (req: AppRequest) => {
+        (req: AppRequest): string | null => {
           const { accessToken } = req.cookies;
 
           if (!accessToken) {
@@ -31,7 +31,7 @@ export class AccessTokenStrategy extends PassportStrategy(Strategy, 'jwt') {
     });
   }
 
-  async validate(_req: AppRequest, payload: JwtPayload) {
+  async validate(_req: AppRequest, payload: JwtPayload): Promise<ContextUser> {
     const user = await this.userService.findOne({ where: { id: Number(payload.sub) } });
 
     if (!user) {

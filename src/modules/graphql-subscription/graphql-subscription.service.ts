@@ -7,7 +7,7 @@ import WebSocket from 'ws';
 import { minimizeString } from 'utils';
 
 import { DebugMessages, ErrorMessage } from './constants';
-import { ConnectionParams, DataObject, SubscribeOptions } from './types';
+import { ConnectionParams, DataObject, NotifyFunction, SubscribeOptions } from './types';
 
 @Injectable()
 export class GraphQLSubscriptionService {
@@ -46,16 +46,16 @@ export class GraphQLSubscriptionService {
     this.loggerService.log(`${this.connectionName} initialized`, GraphQLSubscriptionService.name);
   }
 
-  public async closeConnection() {
-    await this.client.dispose();
+  public async closeConnection(): Promise<void> {
+    return this.client.dispose();
   }
 
   private readonly handleSubscriptionNext = <T = unknown>(
-    publishFn: (data?: T) => Promise<void>,
+    notifyFn: NotifyFunction<T>,
     dataKey: string,
     data?: DataObject<T, string>,
     errors?: GraphQLError[],
-  ) => {
+  ): void => {
     if (errors?.length) {
       const errorMessage = `${ErrorMessage.UNEXPECTED_WEBSOCKET_ERROR}: ${JSON.stringify(serializeError(errors))}`;
 
@@ -65,7 +65,7 @@ export class GraphQLSubscriptionService {
     }
 
     if (data) {
-      void publishFn(data[dataKey]);
+      void notifyFn(data[dataKey]);
     }
   };
 
@@ -78,7 +78,7 @@ export class GraphQLSubscriptionService {
     const minimizedQuery = minimizeString(query);
     const queryWithVariables = { query: minimizedQuery, variables };
 
-    this.loggerService.debug(`${DebugMessages.SUBSCRIBING}: ${operationName}`, {
+    this.loggerService.debug?.(`${DebugMessages.SUBSCRIBING}: ${operationName}`, {
       ...queryWithVariables,
       connection: this.connectionName,
     });
@@ -100,7 +100,7 @@ export class GraphQLSubscriptionService {
           throw new GraphQLError(errorMessage);
         },
         complete: () => {
-          this.loggerService.debug(`${DebugMessages.SUBSCRIPTION_COMPLETE}: ${operationName}`, {
+          this.loggerService.debug?.(`${DebugMessages.SUBSCRIPTION_COMPLETE}: ${operationName}`, {
             ...queryWithVariables,
             connection: this.connectionName,
           });

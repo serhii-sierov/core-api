@@ -42,17 +42,17 @@ export class UserService {
   increment: Increment<UserEntity> = async (options, transactionManager) => {
     const repository = this.getRepository(transactionManager);
 
-    const { affected } = await repository.increment(options.conditions, options.propertyPath, options.value);
+    const { affected = 0 } = await repository.increment(options.conditions, options.propertyPath, options.value);
 
     const affectedRows = await this.findAll({ where: options.conditions }, transactionManager);
 
-    return [affectedRows, affected];
+    return [affected, affectedRows];
   };
 
   update: Update<UserEntity> = async (where, entity, transactionManager) => {
     const repository = this.getRepository(transactionManager);
 
-    const { affected } = await repository.update(where, entity);
+    const { affected = 0 } = await repository.update(where, entity);
     const affectedRows = await this.findAll({ where });
 
     return [affected, affectedRows];
@@ -62,7 +62,7 @@ export class UserService {
     const repository: Repository<UserEntity> = this.getRepository(transactionManager);
     const { affected } = await repository.delete(options);
 
-    return affected;
+    return affected ?? 0;
   };
 
   async addProvider(user: UserEntity, providerData: Partial<ProviderEntity>): Promise<ProviderEntity> {

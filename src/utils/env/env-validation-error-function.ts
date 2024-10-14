@@ -2,7 +2,7 @@
 import { DOCUMENTATION_URL } from '@constants';
 import Joi from 'joi';
 
-export const envValidationErrorFunction = (errors: Joi.ErrorReport[]) =>
+export const envValidationErrorFunction = (errors: Joi.ErrorReport[]): Error =>
   new Error(
     [
       ...errors,

@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { EntityPropertyNotFoundError, SelectQueryBuilder } from 'typeorm';
 import { ColumnMetadata } from 'typeorm/metadata/ColumnMetadata';
 import { Alias } from 'typeorm/query-builder/Alias';
@@ -8,7 +11,7 @@ import { Alias } from 'typeorm/query-builder/Alias';
  * Source copied and modified from TypeORM v0.3.20.
  * @see https://github.com/typeorm/typeorm/issues/10876
  */
-export const patchQueryBuilder = () => {
+export const patchQueryBuilder = (): void => {
   (SelectQueryBuilder.prototype as any).findColumnsForPropertyPath = function (
     propertyPath: string,
   ): [Alias, string[], ColumnMetadata[]] {
@@ -49,7 +52,7 @@ export const patchQueryBuilder = () => {
         // const joinAttr = self.expressionMap.joinAttributes.find(joinAttr => joinAttr.relationPropertyPath === part);
         // PATCHED CODE:
         const joinAttr = self.expressionMap.joinAttributes.find(
-          attr => attr.entityOrProperty === `${alias.name}.${part}`,
+          attr => attr.entityOrProperty === `${alias?.name}.${part}`,
         );
         // <<<<< MARK: PATCH END
 

@@ -4,7 +4,7 @@ import { GqlExecutionContext } from '@nestjs/graphql';
 import { AuthGuard } from '@nestjs/passport';
 import { Observable } from 'rxjs';
 
-import { GqlContext } from 'types';
+import { AppRequest, GqlContext, WebSocketConnectionParams } from 'types';
 
 import { IS_PUBLIC_KEY } from '../decorators';
 
@@ -14,7 +14,7 @@ export class AccessTokenGuard extends AuthGuard('jwt') {
     super();
   }
 
-  getRequest(context: ExecutionContext) {
+  getRequest(context: ExecutionContext): AppRequest | WebSocketConnectionParams {
     const ctx = GqlExecutionContext.create(context);
 
     const { req, connectionParams } = ctx.getContext<GqlContext>();

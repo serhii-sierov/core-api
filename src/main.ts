@@ -6,7 +6,7 @@ import { AppConfigService } from 'modules/shared/modules/config/config.service';
 
 import { AppModule } from './app.module';
 
-async function bootstrap() {
+async function bootstrap(): Promise<void> {
   dotenv.config();
 
   const app = await NestFactory.create(AppModule);

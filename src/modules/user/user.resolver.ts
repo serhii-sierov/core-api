@@ -11,7 +11,7 @@ export class UserResolver {
   constructor(private readonly userService: UserService) {}
 
   @Query('user')
-  getUser(@CurrentUser() contextUser: ContextUser): Promise<User> {
+  getUser(@CurrentUser() contextUser: ContextUser): Promise<User | null> {
     return this.userService.findOne({ where: { id: contextUser.id } });
   }
 }

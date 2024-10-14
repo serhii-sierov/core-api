@@ -7,6 +7,7 @@ import { GraphQLJSON } from 'graphql-type-json';
 // import { JsonWebTokenError } from 'jsonwebtoken';
 import { join } from 'path';
 
+import { GqlContext } from 'types';
 // import { ErrorMessage } from 'modules/users/types';
 import { isProduction } from 'utils';
 
@@ -20,7 +21,7 @@ import { AppConfigService } from '../config';
       driver: ApolloDriver,
       useFactory: (configService: AppConfigService, cacheManager: Cache, loggerService: LoggerService) => {
         return {
-          context: (contextParams: ContextParams) =>
+          context: (contextParams: ContextParams): GqlContext =>
             getContext({
               ...contextParams,
               loggerService,

@@ -1,6 +1,5 @@
 import { Cache } from '@nestjs/cache-manager';
 import { LoggerService } from '@nestjs/common';
-import { ContextFunction } from 'apollo-server-core';
 import { Response } from 'express';
 
 import { AppRequest, GqlContext, WebSocketConnectionParams } from 'types';
@@ -16,14 +15,14 @@ export type ContextParams = {
   cacheManager: Cache;
 };
 
-export const getContext: ContextFunction<ContextParams, GqlContext> = ({
+export const getContext = ({
   req,
   res,
   connectionParams,
   loggerService,
   // configService,
   // cacheManager,
-}): GqlContext => {
+}: ContextParams): GqlContext => {
   try {
     const context: GqlContext = { req, res };
     // console.log(req);

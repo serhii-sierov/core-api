@@ -4,7 +4,7 @@ import { UserEntity } from './user.entity';
 
 @EventSubscriber()
 export class UserSubscriber implements EntitySubscriberInterface<UserEntity> {
-  listenTo() {
+  listenTo(): typeof UserEntity {
     return UserEntity;
   }
 
@@ -13,7 +13,7 @@ export class UserSubscriber implements EntitySubscriberInterface<UserEntity> {
   }
 
   beforeUpdate(event: UpdateEvent<UserEntity>): void {
-    if (event.entity.email) {
+    if (event.entity?.email) {
       event.entity.email = (event.entity as UserEntity).email.toLowerCase();
     }
   }
