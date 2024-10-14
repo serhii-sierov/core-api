@@ -18,7 +18,6 @@ type SignUpResponse {
 input SignInInput {
   email: String!
   password: String!
-  rememberMe: Boolean
   device: String
 }
 

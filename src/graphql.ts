@@ -11,7 +11,6 @@
 export interface SignInInput {
     email: string;
     password: string;
-    rememberMe?: Nullable<boolean>;
     device?: Nullable<string>;
 }
 

@@ -83,4 +83,7 @@ export class AuthResolver {
 
     return this.authService.changePassword(oldPassword, newPassword, currentUser.id);
   }
+
+  // TODO: Implement reset password mutation
+  // TODO: Implement email confirmation mutation
 }
