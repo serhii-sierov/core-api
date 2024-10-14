@@ -4,7 +4,7 @@ import { DynamicModule, ForwardReference, Module, Type } from '@nestjs/common';
 import { GraphQLSubscriptionModule } from 'modules/graphql-subscription';
 
 import { CacheModule } from './modules/cache';
-import { AppConfigService, ConfigModule } from './modules/config';
+import { AppConfigModule, AppConfigService } from './modules/config';
 import { DatabaseModule } from './modules/database';
 import { GraphQlModule } from './modules/graphql';
 import { LoggerModule } from './modules/logger';
@@ -12,7 +12,7 @@ import { LoggerModule } from './modules/logger';
 const isTestEnvironment = process.env.NODE_ENV === Environments.TEST;
 
 const baseModules: (DynamicModule | Type<any> | Promise<DynamicModule> | ForwardReference<any>)[] = [
-  ConfigModule,
+  AppConfigModule,
   LoggerModule,
   CacheModule,
   DatabaseModule,
