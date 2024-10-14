@@ -69,7 +69,7 @@ export class GraphQLSubscriptionService {
     }
   };
 
-  subscribe<T = unknown, V extends Record<string, unknown> = Record<string, any>>({
+  subscribe<T = unknown, V extends Record<string, unknown> = Record<string, unknown>>({
     operationName,
     query,
     variables,
