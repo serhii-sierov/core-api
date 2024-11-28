@@ -72,7 +72,10 @@ module.exports = {
       },
     ],
     '@typescript-eslint/no-shadow': 'error', // Vars with the same name in different scopes are not allowed
-    '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', ignoreRestSiblings: true }], // Names of unused vars can start only from an underscore
+    '@typescript-eslint/no-unused-vars': [
+      'error',
+      { argsIgnorePattern: '^_', ignoreRestSiblings: true, caughtErrors: 'none' },
+    ], // Names of unused vars can start only from an underscore
     '@typescript-eslint/no-unused-expressions': ['error', { allowShortCircuit: true, allowTernary: true }], // Unused expressions only allowed for short circuit / ternary
     '@typescript-eslint/no-inferrable-types': ['error', { ignoreParameters: true, ignoreProperties: true }], // do not set types for boolean, number, string, unless in fn params or obj properties
     '@typescript-eslint/no-unsafe-enum-comparison': 'off', // comparing enum values with non-enum values is allowed.

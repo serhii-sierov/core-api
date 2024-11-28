@@ -12,6 +12,7 @@ import { ConnectionParams, DataObject, NotifyFunction, SubscribeOptions } from '
 @Injectable()
 export class GraphQLSubscriptionService {
   private readonly client: Client;
+  private readonly connectionDescription: string;
 
   constructor(
     private readonly connectionName: string,
@@ -19,6 +20,7 @@ export class GraphQLSubscriptionService {
     private readonly connectionParams: ConnectionParams,
     private readonly loggerService: LoggerService,
   ) {
+    this.connectionDescription = `${this.connectionName} subscriptions`;
     this.client = createClient({
       url: `${this.host}/graphql`,
       connectionParams: this.connectionParams,
@@ -26,24 +28,25 @@ export class GraphQLSubscriptionService {
       retryAttempts: Infinity,
       on: {
         connecting: () => {
-          this.loggerService.log('info', DebugMessages.CONNECTING_TO_WEBSOCKET, { connection: this.connectionName });
+          this.loggerService.log(DebugMessages.CONNECTING_TO_WEBSOCKET, this.connectionDescription);
         },
         connected: () => {
-          this.loggerService.log('info', DebugMessages.CONNECTED_TO_WEBSOCKET, { connection: this.connectionName });
+          this.loggerService.log(DebugMessages.CONNECTED_TO_WEBSOCKET, this.connectionDescription);
         },
         closed: () => {
-          this.loggerService.log('info', DebugMessages.WEBSOCKET_CLOSED, { connection: this.connectionName });
+          this.loggerService.log(DebugMessages.WEBSOCKET_CLOSED, this.connectionDescription);
         },
         error: error => {
-          this.loggerService.error(`${ErrorMessage.WEBSOCKET_ERROR}:`, serializeError(error), {
-            connection: this.connectionName,
-          });
+          this.loggerService.error(
+            `${ErrorMessage.WEBSOCKET_ERROR} ${JSON.stringify(serializeError(error))}`,
+            this.connectionDescription,
+          );
         },
       },
 
       webSocketImpl: WebSocket,
     });
-    this.loggerService.log(`${this.connectionName} initialized`, GraphQLSubscriptionService.name);
+    this.loggerService.log(`${this.connectionDescription} initialized`, GraphQLSubscriptionService.name);
   }
 
   public async closeConnection(): Promise<void> {
@@ -59,7 +62,7 @@ export class GraphQLSubscriptionService {
     if (errors?.length) {
       const errorMessage = `${ErrorMessage.UNEXPECTED_WEBSOCKET_ERROR}: ${JSON.stringify(serializeError(errors))}`;
 
-      this.loggerService.error(errorMessage, { connection: this.connectionName });
+      this.loggerService.error(errorMessage, this.connectionDescription);
 
       throw new GraphQLError(JSON.stringify(errorMessage));
     }
@@ -76,12 +79,11 @@ export class GraphQLSubscriptionService {
     onNotify,
   }: SubscribeOptions<V, T>): () => void {
     const minimizedQuery = minimizeString(query);
-    const queryWithVariables = { query: minimizedQuery, variables };
 
-    this.loggerService.debug?.(`${DebugMessages.SUBSCRIBING}: ${operationName}`, {
-      ...queryWithVariables,
-      connection: this.connectionName,
-    });
+    const subscriptionInfo = `Query: "${minimizedQuery}", Variables: ${JSON.stringify(variables)}`;
+
+    this.loggerService.log(`${DebugMessages.SUBSCRIBING}: ${operationName}`, this.connectionDescription);
+    this.loggerService.debug?.(subscriptionInfo, this.connectionDescription);
 
     return this.client.subscribe<T>(
       {
@@ -95,15 +97,17 @@ export class GraphQLSubscriptionService {
             serializeError(error),
           )}`;
 
-          this.loggerService.error(errorMessage, { ...queryWithVariables, connection: this.connectionName });
+          this.loggerService.error(errorMessage, this.connectionDescription);
+          this.loggerService.debug?.(subscriptionInfo, this.connectionDescription);
 
           throw new GraphQLError(errorMessage);
         },
         complete: () => {
-          this.loggerService.debug?.(`${DebugMessages.SUBSCRIPTION_COMPLETE}: ${operationName}`, {
-            ...queryWithVariables,
-            connection: this.connectionName,
-          });
+          this.loggerService.log(
+            `${DebugMessages.SUBSCRIPTION_COMPLETE}: ${operationName}`,
+            this.connectionDescription,
+          );
+          this.loggerService.debug?.(subscriptionInfo, this.connectionDescription);
         },
       },
     );

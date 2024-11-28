@@ -7,7 +7,7 @@
   "trailingComma": "all",
   "arrowParens": "avoid",
   "importOrder": [
-    "^(config|consts|guards|modules|pipes|services|graphql$|scripts|types|utils|validation)",
+    "^(config|constants|guards|modules|pipes|services|graphql$|scripts|types|utils|validation)",
     "^\\./\\w",
     "^\\.\\./\\w",
     "^(\\.\\./){2}\\w",
@@ -16,10 +16,7 @@
     "^(\\.\\./){5,}\\w",
     "^[./]"
   ],
-  "importOrderParserPlugins": [
-    "[\"decorators-legacy\", { \"decoratorsBeforeExport\": true }]",
-    "typescript"
-  ],
+  "importOrderParserPlugins": ["[\"decorators-legacy\", { \"decoratorsBeforeExport\": true }]", "typescript"],
   "importOrderSeparation": true,
   "importOrderSortSpecifiers": true,
   "importOrderGroupNamespaceSpecifiers": false,

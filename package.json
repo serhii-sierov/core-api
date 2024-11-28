@@ -19,6 +19,7 @@
     "typeorm-dev": "yarn typeorm -d src/config/data-source.ts",
     "typeorm-prod": "yarn typeorm -d dist/config/data-source.js",
     "migration:generate": "sh -c 'yarn typeorm-dev migration:generate src/modules/shared/modules/database/migrations/${0} && yarn prettier --write src/modules/shared/modules/database/migrations/'",
+    "migration:create": "sh -c 'yarn typeorm migration:create src/modules/shared/modules/database/migrations/${0} && yarn prettier --write src/modules/shared/modules/database/migrations/'",
     "migrate:dev": "yarn typeorm-dev migration:run",
     "migrate:devDown": "yarn typeorm-dev migration:revert",
     "migrate:prod": "yarn typeorm-prod migration:run",
@@ -64,6 +65,7 @@
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
     "serialize-error": "^8.1.0",
+    "tsconfig-paths": "^4.2.0",
     "typeorm": "^0.3.20",
     "winston": "^3.15.0"
   },
@@ -85,6 +87,7 @@
     "@types/pg": "^8.11.10",
     "@types/pluralize": "^0.0.33",
     "@types/supertest": "^6.0.2",
+    "@types/ws": "^8.5.12",
     "@typescript-eslint/eslint-plugin": "^8.8.1",
     "@typescript-eslint/parser": "^8.8.1",
     "eslint": "^8.57.1",
@@ -102,7 +105,6 @@
     "ts-loader": "^9.5.1",
     "ts-morph": "^24.0.0",
     "ts-node": "^10.9.2",
-    "tsconfig-paths": "^4.2.0",
     "typescript": "^5.6.3"
   },
   "jest": {

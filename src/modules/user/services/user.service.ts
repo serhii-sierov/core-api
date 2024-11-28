@@ -34,7 +34,7 @@ export class UserService {
 
   create: Create<UserEntity> = async (data, transactionManager) => {
     const repository = this.getRepository(transactionManager);
-    const user = this.userRepository.create(data);
+    const user = repository.create(data);
 
     return repository.save(user);
   };
@@ -53,7 +53,7 @@ export class UserService {
     const repository = this.getRepository(transactionManager);
 
     const { affected = 0 } = await repository.update(where, entity);
-    const affectedRows = await this.findAll({ where });
+    const affectedRows = await this.findAll({ where }, transactionManager);
 
     return [affected, affectedRows];
   };
