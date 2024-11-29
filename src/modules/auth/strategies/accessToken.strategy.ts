@@ -27,7 +27,7 @@ export class AccessTokenStrategy extends PassportStrategy(Strategy, 'jwt') {
         },
       ]),
       passReqToCallback: true,
-      secretOrKey: configService.get('jwt.accessToken.secret'),
+      secretOrKey: configService.get('jwt').accessToken.secret,
     });
   }
 
