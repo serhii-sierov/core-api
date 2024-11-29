@@ -31,8 +31,8 @@ export class AuthService {
     this.jwtConfig = this.configService.get('jwt');
   }
 
-  signUp = async (input: SignUpInput, res: Response): Promise<SignUpResponse> => {
-    const { email, password, device } = input;
+  signUp = async (input: SignUpInput, res: Response, device: string): Promise<SignUpResponse> => {
+    const { email, password } = input;
 
     // Check if user exists
     const user = await this.userService.findOne({
@@ -69,8 +69,13 @@ export class AuthService {
     });
   };
 
-  signIn = async (input: SignInInput, res: Response, requestRefreshToken?: string): Promise<SignInResponse> => {
-    const { email, password, device } = input;
+  signIn = async (
+    input: SignInInput,
+    res: Response,
+    device: string,
+    requestRefreshToken?: string,
+  ): Promise<SignInResponse> => {
+    const { email, password } = input;
 
     const user = await this.validateUser(email, password);
 

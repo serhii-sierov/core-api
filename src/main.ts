@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import cookieParser from 'cookie-parser';
 import * as dotenv from 'dotenv';
+import * as requestIp from 'request-ip';
 
 import { AppConfigService } from 'modules/shared/modules/config/config.service';
 
@@ -12,6 +13,7 @@ async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
 
   app.use(cookieParser());
+  app.use(requestIp.mw());
 
   const configService = app.get(AppConfigService);
 

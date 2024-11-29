@@ -1,16 +1,9 @@
 import { UseGuards } from '@nestjs/common';
 import { Args, Context, Mutation, Resolver } from '@nestjs/graphql';
+import { HttpClientInfo } from 'decorators';
 import { Response } from 'express';
 
-import {
-  ChangePasswordInput,
-  RefreshTokenInput,
-  SignInInput,
-  SignInResponse,
-  SignOutInput,
-  SignUpInput,
-  SignUpResponse,
-} from 'graphql';
+import { ChangePasswordInput, SignInInput, SignInResponse, SignOutInput, SignUpInput, SignUpResponse } from 'graphql';
 import { JoiValidationPipe } from 'pipes';
 import { ContextUser, GqlContext } from 'types';
 
@@ -32,8 +25,9 @@ export class AuthResolver {
   signUp(
     @Args('input', new JoiValidationPipe(signUpInputValidationSchema)) input: SignUpInput,
     @Context('res') res: Response,
+    @HttpClientInfo('summary') device: string,
   ): Promise<SignUpResponse> {
-    return this.authService.signUp(input, res);
+    return this.authService.signUp(input, res, device);
   }
 
   @Public()
@@ -41,11 +35,13 @@ export class AuthResolver {
   signIn(
     @Args('input', new JoiValidationPipe(signInInputValidationSchema)) input: SignInInput,
     @Context() context: GqlContext,
+    @HttpClientInfo('summary') device: string,
   ): Promise<SignInResponse> {
+    // TODO: Implement ip address geo location lookup using https://ipgeolocation.io/
     const { req, res } = context;
     const { refreshToken } = req.cookies;
 
-    return this.authService.signIn(input, res, refreshToken);
+    return this.authService.signIn(input, res, device, refreshToken);
   }
 
   @Mutation('signOut')
@@ -66,8 +62,7 @@ export class AuthResolver {
   @UseGuards(RefreshTokenGuard)
   @Public()
   @Mutation('refreshToken')
-  refreshToken(@Args('input') input: RefreshTokenInput, @Context() context: GqlContext): Promise<boolean> {
-    const { device } = input;
+  refreshToken(@Context() context: GqlContext, @HttpClientInfo('summary') device: string): Promise<boolean> {
     const { req, res } = context;
     const { refreshToken } = req.cookies;
 

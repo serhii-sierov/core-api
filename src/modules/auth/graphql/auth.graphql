@@ -2,7 +2,7 @@ extend type Mutation {
   signUp(input: SignUpInput!): SignUpResponse
   signIn(input: SignInInput!): SignInResponse
   signOut(input: SignOutInput): Boolean
-  refreshToken(input: RefreshTokenInput): Boolean
+  refreshToken: Boolean
   changePassword(input: ChangePasswordInput!): Boolean
   resetPassword(input: ResetPasswordInput!): Boolean
 }
@@ -18,21 +18,15 @@ type SignUpResponse {
 input SignInInput {
   email: String!
   password: String!
-  device: String
 }
 
 input SignUpInput {
   email: String!
   password: String!
-  device: String
 }
 
 input SignOutInput {
   isAllDevices: Boolean
-}
-
-input RefreshTokenInput {
-  device: String
 }
 
 input ChangePasswordInput {

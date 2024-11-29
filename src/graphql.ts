@@ -11,21 +11,15 @@
 export interface SignInInput {
     email: string;
     password: string;
-    device?: Nullable<string>;
 }
 
 export interface SignUpInput {
     email: string;
     password: string;
-    device?: Nullable<string>;
 }
 
 export interface SignOutInput {
     isAllDevices?: Nullable<boolean>;
-}
-
-export interface RefreshTokenInput {
-    device?: Nullable<string>;
 }
 
 export interface ChangePasswordInput {
@@ -46,7 +40,7 @@ export interface IMutation {
     signUp(input: SignUpInput): Nullable<SignUpResponse> | Promise<Nullable<SignUpResponse>>;
     signIn(input: SignInInput): Nullable<SignInResponse> | Promise<Nullable<SignInResponse>>;
     signOut(input?: Nullable<SignOutInput>): Nullable<boolean> | Promise<Nullable<boolean>>;
-    refreshToken(input?: Nullable<RefreshTokenInput>): Nullable<boolean> | Promise<Nullable<boolean>>;
+    refreshToken(): Nullable<boolean> | Promise<Nullable<boolean>>;
     changePassword(input: ChangePasswordInput): Nullable<boolean> | Promise<Nullable<boolean>>;
     resetPassword(input: ResetPasswordInput): Nullable<boolean> | Promise<Nullable<boolean>>;
     _empty(): Nullable<string> | Promise<Nullable<string>>;
