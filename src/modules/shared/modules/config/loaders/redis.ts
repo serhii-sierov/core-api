@@ -1,5 +1,9 @@
 import { parseConnectionString } from 'utils';
 
+export interface RedisEnvironmentVariables {
+  REDIS_URL: string;
+}
+
 export type RedisConfig = {
   host: string;
   port: number;
@@ -9,7 +13,11 @@ export type RedisConfig = {
   tls?: { rejectUnauthorized: boolean };
 };
 
-export const redisConfig = (): { redis: RedisConfig } => {
+export interface RedisConfigLoader {
+  redis: RedisConfig;
+}
+
+export const redisConfigLoader = (): RedisConfigLoader => {
   const connectionString = process.env.REDIS_URL;
   const { protocol, ...credentials } = parseConnectionString(connectionString, { includeProtocolName: true });
 

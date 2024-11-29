@@ -1,5 +1,3 @@
-export * from './env';
-
 export * from './app-request';
 
 export * from './graphql';

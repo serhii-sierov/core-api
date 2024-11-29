@@ -1,17 +1,23 @@
+import { Environments } from '@constants';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
-import { EnvironmentVariables } from 'types';
+import { BaseEnvironmentVariables } from './environment-variables';
+import { DatabaseConfigLoader, JwtConfigLoader, RedisConfigLoader } from './loaders';
 
-import { LeafTypes, Leaves } from './types';
+interface ConfigValues extends BaseEnvironmentVariables, RedisConfigLoader, JwtConfigLoader, DatabaseConfigLoader {}
 
 @Injectable()
-export class AppConfigService {
-  constructor(private readonly configService: ConfigService) {}
+export class AppConfigService extends ConfigService<ConfigValues, true> {
+  get<T extends keyof ConfigValues>(property: T): ConfigValues[T] {
+    return super.get(property);
+  }
 
-  get<K extends keyof EnvironmentVariables>(propertyPath: K): LeafTypes<EnvironmentVariables, K>;
-  get<T extends Leaves<EnvironmentVariables>>(propertyPath: T): LeafTypes<EnvironmentVariables, T>;
-  get(propertyPath: string): unknown {
-    return this.configService.get(propertyPath);
+  isProduction(): boolean {
+    return this.get('NODE_ENV') === Environments.PRODUCTION;
+  }
+
+  isTest(): boolean {
+    return this.get('NODE_ENV') === Environments.TEST;
   }
 }

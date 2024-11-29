@@ -1,3 +1,10 @@
+export interface JwtEnvironmentVariables {
+  JWT_ACCESS_TOKEN_SECRET: string;
+  JWT_ACCESS_TOKEN_EXPIRES: string;
+  JWT_REFRESH_TOKEN_SECRET: string;
+  JWT_REFRESH_TOKEN_EXPIRES: string;
+}
+
 export type JwtConfig = {
   accessToken: {
     secret: string;
@@ -9,7 +16,11 @@ export type JwtConfig = {
   };
 };
 
-export const jwtConfig = (): { jwt: JwtConfig } => ({
+export interface JwtConfigLoader {
+  jwt: JwtConfig;
+}
+
+export const jwtConfigLoader = (): JwtConfigLoader => ({
   jwt: {
     accessToken: {
       secret: process.env.JWT_ACCESS_TOKEN_SECRET ?? 'access_secret',
