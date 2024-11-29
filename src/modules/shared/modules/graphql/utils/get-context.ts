@@ -25,7 +25,6 @@ export const getContext = ({
 }: ContextParams): GqlContext => {
   try {
     const context: GqlContext = { req, res };
-    // console.log(req);
 
     if (connectionParams) {
       return context;

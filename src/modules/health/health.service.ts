@@ -1,14 +1,9 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { readFileSync } from 'fs';
-
-import { GraphQLSubscriptionService } from 'modules/graphql-subscription';
 
 @Injectable()
 export class HealthService {
-  constructor(
-    @Inject('API1') private readonly graphQLSubscriptionService1: GraphQLSubscriptionService,
-    @Inject('API2') private readonly graphQLSubscriptionService2: GraphQLSubscriptionService,
-  ) {}
+  constructor() {}
 
   getAppVersion(): string {
     let appVersion = '';

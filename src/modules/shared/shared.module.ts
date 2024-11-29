@@ -1,7 +1,6 @@
 import { Environments } from '@constants';
+import { BullModule } from '@nestjs/bullmq';
 import { DynamicModule, ForwardReference, Module, Type } from '@nestjs/common';
-
-import { GraphQLSubscriptionModule } from 'modules/graphql-subscription';
 
 import { CacheModule } from './modules/cache';
 import { AppConfigModule, AppConfigService } from './modules/config';
@@ -16,28 +15,40 @@ const baseModules: (DynamicModule | Type<any> | Promise<DynamicModule> | Forward
   LoggerModule,
   CacheModule,
   DatabaseModule,
-  // QueueModule,
 ];
 
 const prodModules = baseModules.concat([
   GraphQlModule,
-  GraphQLSubscriptionModule.registerAsync({
-    provide: 'API1',
-    useFactory: (configService: AppConfigService) => ({
-      host: configService.get('DATABASE_URL'),
-      connectionParams: { additional: { parameter: 'value' } },
-    }),
+  BullModule.forRootAsync({
+    useFactory: (configService: AppConfigService) => {
+      return {
+        connection: {
+          ...configService.get('redis'),
+          enableReadyCheck: false,
+          maxRetriesPerRequest: null,
+        },
+      };
+    },
     inject: [AppConfigService],
-    isGlobal: true,
   }),
-  GraphQLSubscriptionModule.registerAsync({
-    provide: 'API2',
-    useFactory: (configService: AppConfigService) => ({
-      host: configService.get('DATABASE_URL'),
-    }),
-    inject: [AppConfigService],
-    isGlobal: true,
-  }),
+  // This is an example of how to use the GraphQLSubscriptionModule
+  // GraphQLSubscriptionModule.registerAsync({
+  //   provide: 'API1',
+  //   useFactory: (configService: AppConfigService) => ({
+  //     host: configService.get('API1_HOST'),
+  //     connectionParams: { additional: { parameter: 'value' } },
+  //   }),
+  //   inject: [AppConfigService],
+  //   isGlobal: true,
+  // }),
+  // GraphQLSubscriptionModule.registerAsync({
+  //   provide: 'API2',
+  //   useFactory: (configService: AppConfigService) => ({
+  //     host: configService.get('API2_HOST'),
+  //   }),
+  //   inject: [AppConfigService],
+  //   isGlobal: true,
+  // }),
 ]);
 
 @Module({

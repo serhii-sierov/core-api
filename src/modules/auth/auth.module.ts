@@ -12,6 +12,6 @@ import { AccessTokenStrategy, RefreshTokenStrategy } from './strategies';
 @Module({
   imports: [TypeOrmModule.forFeature([RefreshTokenEntity]), UserModule],
   providers: [AuthResolver, AuthService, JwtService, RefreshTokenService, AccessTokenStrategy, RefreshTokenStrategy],
-  exports: [],
+  exports: [RefreshTokenService],
 })
 export class AuthModule {}

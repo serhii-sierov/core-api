@@ -5,9 +5,9 @@ import { Response } from 'express';
 import ms from 'ms';
 import { DataSource } from 'typeorm';
 
-import { JwtConfig } from 'config';
 import { SignInInput, SignInResponse, SignUpInput, SignUpResponse } from 'graphql';
 import { AppConfigService } from 'modules/shared/modules/config';
+import { JwtConfig } from 'modules/shared/modules/config/loaders';
 import { UserEntity } from 'modules/user/entities/user.entity';
 import { UserService } from 'modules/user/services';
 import { compareHash, hash } from 'utils';
