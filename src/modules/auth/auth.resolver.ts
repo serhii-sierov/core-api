@@ -74,6 +74,5 @@ export class AuthResolver {
   }
 
   // TODO: Implement reset password mutation
-  // TODO: Implement cleanup expired refresh tokens in queue
   // TODO: Implement email confirmation mutation
 }
