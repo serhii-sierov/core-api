@@ -7,7 +7,7 @@ import WebSocket from 'ws';
 import { minimizeString } from 'utils';
 
 import { DebugMessages, ErrorMessage } from './constants';
-import { ConnectionParams, DataObject, NotifyFunction, SubscribeOptions } from './types';
+import { ConnectionParams, NotifyFunction, SubscribeOptions } from './types';
 
 @Injectable()
 export class GraphQLSubscriptionService {
@@ -56,8 +56,8 @@ export class GraphQLSubscriptionService {
   private readonly handleSubscriptionNext = <T = unknown>(
     notifyFn: NotifyFunction<T>,
     dataKey: string,
-    data?: DataObject<T, string>,
-    errors?: GraphQLError[],
+    data?: T | null,
+    errors?: readonly GraphQLError[],
   ): void => {
     if (errors?.length) {
       const errorMessage = `${ErrorMessage.UNEXPECTED_WEBSOCKET_ERROR}: ${JSON.stringify(serializeError(errors))}`;
@@ -91,6 +91,7 @@ export class GraphQLSubscriptionService {
         variables,
       },
       {
+        // TODO: Test if it gets data properly
         next: ({ data, errors }) => this.handleSubscriptionNext<T>(onNotify, operationName, data, errors),
         error: error => {
           const errorMessage = `${ErrorMessage.SUBSCRIPTION_ERROR} (${operationName}): ${JSON.stringify(
