@@ -28,9 +28,6 @@ ARG NPM_TOKEN
 # install dependencies
 RUN yarn --frozen-lockfile
 
-# Generate graphql typings
-RUN yarn generate:typings
-
 # run unit tests
 RUN yarn test:unit
 

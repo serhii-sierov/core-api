@@ -3,7 +3,6 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 import { LoggerService, Module } from '@nestjs/common';
 import { GraphQLModule as NestGraphQLModule } from '@nestjs/graphql';
-import { GraphQLJSON } from 'graphql-type-json';
 // import { JsonWebTokenError } from 'jsonwebtoken';
 import { join } from 'path';
 
@@ -21,6 +20,10 @@ import { AppConfigService } from '../config';
       driver: ApolloDriver,
       useFactory: (configService: AppConfigService, cacheManager: Cache, loggerService: LoggerService) => {
         return {
+          autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
+          introspection: !isProduction(configService),
+          playground: !isProduction(configService),
+          subscriptions: { 'graphql-ws': true },
           context: (contextParams: ContextParams): GqlContext =>
             getContext({
               ...contextParams,
@@ -38,19 +41,6 @@ import { AppConfigService } from '../config';
 
           //     return { message };
           //   },
-          typePaths: ['./**/*.graphql'],
-          introspection: !isProduction(configService),
-          playground: !isProduction(configService),
-          definitions: {
-            path: join(process.cwd(), 'src/graphql.ts'),
-            outputAs: 'interface',
-          },
-          resolvers: {
-            JSON: GraphQLJSON,
-          },
-          subscriptions: {
-            'graphql-ws': true,
-          },
         };
       },
       imports: [],

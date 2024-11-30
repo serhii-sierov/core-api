@@ -5,7 +5,6 @@ import { Response } from 'express';
 import ms from 'ms';
 import { DataSource } from 'typeorm';
 
-import { SignInInput, SignInResponse, SignUpInput, SignUpResponse } from 'graphql';
 import { AppConfigService } from 'modules/shared/modules/config';
 import { JwtConfig } from 'modules/shared/modules/config/loaders';
 import { UserEntity } from 'modules/user/entities/user.entity';
@@ -15,6 +14,7 @@ import { compareHash, hash } from 'utils';
 import { RefreshTokenService } from './refresh-token.service';
 
 import { ErrorMessage } from '../constants';
+import { SignInInput, SignInResponse, SignUpInput, SignUpResponse } from '../dto';
 import { AdditionalJwtPayload, RefreshTokenOptions, SignOutOptions, Tokens } from '../types';
 
 @Injectable()
@@ -130,9 +130,9 @@ export class AuthService {
   };
 
   signOut = async (options: SignOutOptions, res: Response): Promise<void> => {
-    const { userId, refreshToken, isAllDevices } = options;
+    const { userId, refreshToken, useAllDevices } = options;
 
-    if (isAllDevices) {
+    if (useAllDevices) {
       await this.refreshTokenService.destroy({ userId });
     } else {
       await this.refreshTokenService.destroy({ token: refreshToken });

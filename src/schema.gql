@@ -1,0 +1,76 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type RefreshTokenEntity {
+  id: Float!
+  userId: Float!
+  user: UserEntity!
+  token: String!
+  device: String
+  expiresAt: DateTime!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type UserEntity {
+  id: Float!
+  email: String!
+  password: String
+  providers: [ProviderEntity!]!
+  refreshTokens: [RefreshTokenEntity!]!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type ProviderEntity {
+  id: Float!
+  userId: Float!
+  user: UserEntity!
+  provider: String!
+  providerId: String!
+}
+
+type SignUpResponse {
+  user: UserEntity!
+}
+
+type SignInResponse {
+  user: UserEntity!
+}
+
+type Query {
+  user: UserEntity!
+}
+
+type Mutation {
+  signUp(input: SignUpInput!): SignUpResponse!
+  signIn(input: SignInInput!): SignInResponse!
+  signOut(input: SignOutInput!): Boolean!
+  refreshToken: Boolean!
+  changePassword(input: ChangePasswordInput!): Boolean!
+}
+
+input SignUpInput {
+  email: String!
+  password: String!
+}
+
+input SignInInput {
+  email: String!
+  password: String!
+}
+
+input SignOutInput {
+  useAllDevices: Boolean!
+}
+
+input ChangePasswordInput {
+  oldPassword: String!
+  newPassword: String!
+}
