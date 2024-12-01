@@ -69,7 +69,7 @@ export class AuthService {
         manager,
       );
 
-      return { user: newUser };
+      return { id: newUser.id };
     });
   };
 
@@ -107,17 +107,15 @@ export class AuthService {
       requestRefreshToken,
     );
 
-    return { user };
+    return { id: user.id };
   };
 
   generateTokens = async (userId: number, payload: AdditionalJwtPayload): Promise<Tokens> => {
     const [accessToken, refreshToken] = await Promise.all([
-      // Access token
       this.jwtService.signAsync(payload, {
         subject: String(userId),
         ...this.jwtConfig.accessToken,
       }),
-      // Refresh token
       this.jwtService.signAsync(payload, {
         subject: String(userId),
         ...this.jwtConfig.refreshToken,

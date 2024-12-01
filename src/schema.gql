@@ -37,11 +37,11 @@ type ProviderEntity {
 }
 
 type SignUpResponse {
-  user: UserEntity!
+  id: Float!
 }
 
 type SignInResponse {
-  user: UserEntity!
+  id: Float!
 }
 
 type Query {

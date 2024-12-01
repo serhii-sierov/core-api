@@ -18,7 +18,6 @@ export class UserEntity {
   email: string;
 
   @Column({ type: 'varchar', nullable: true })
-  @Field({ nullable: true })
   password?: string; // For local users
 
   @OneToMany(() => ProviderEntity, provider => provider.user, { cascade: true })
