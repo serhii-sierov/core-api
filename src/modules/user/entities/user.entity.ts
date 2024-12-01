@@ -1,4 +1,4 @@
-import { Field, ObjectType } from '@nestjs/graphql';
+import { Field, Int, ObjectType } from '@nestjs/graphql';
 import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
 import { RefreshTokenEntity } from 'modules/auth/entities/refresh-token.entity';
@@ -10,7 +10,7 @@ import { ProviderEntity } from './provider.entity';
 @Entity('users')
 export class UserEntity {
   @PrimaryGeneratedColumn()
-  @Field()
+  @Field(() => Int)
   id: number;
 
   @Column({ unique: true })

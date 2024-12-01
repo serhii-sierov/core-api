@@ -3,8 +3,8 @@
 # ------------------------------------------------------
 
 type RefreshTokenEntity {
-  id: Float!
-  userId: Float!
+  id: Int!
+  userId: Int!
   user: UserEntity!
   ipAddress: String
   location: String
@@ -20,7 +20,7 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 scalar DateTime
 
 type UserEntity {
-  id: Float!
+  id: Int!
   email: String!
   providers: [ProviderEntity!]!
   refreshTokens: [RefreshTokenEntity!]!
@@ -29,19 +29,19 @@ type UserEntity {
 }
 
 type ProviderEntity {
-  id: Float!
-  userId: Float!
+  id: Int!
+  userId: Int!
   user: UserEntity!
   provider: String!
   providerId: String!
 }
 
 type SignUpResponse {
-  id: Float!
+  id: Int!
 }
 
 type SignInResponse {
-  id: Float!
+  id: Int!
 }
 
 type Query {

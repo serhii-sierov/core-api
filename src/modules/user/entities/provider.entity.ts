@@ -1,4 +1,4 @@
-import { Field, ObjectType } from '@nestjs/graphql';
+import { Field, Int, ObjectType } from '@nestjs/graphql';
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 // eslint-disable-next-line import/no-cycle -- Circular dependency inevitable here
@@ -8,11 +8,11 @@ import { UserEntity } from './user.entity';
 @Entity('providers')
 export class ProviderEntity {
   @PrimaryGeneratedColumn()
-  @Field()
+  @Field(() => Int)
   id: number;
 
   @Column()
-  @Field()
+  @Field(() => Int)
   userId: number;
 
   @ManyToOne(() => UserEntity, user => user.providers, {
