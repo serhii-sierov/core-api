@@ -69,7 +69,7 @@ export class AuthService {
         manager,
       );
 
-      return { id: newUser.id };
+      return { userId: newUser.id };
     });
   };
 
@@ -107,7 +107,7 @@ export class AuthService {
       requestRefreshToken,
     );
 
-    return { id: user.id };
+    return { userId: user.id };
   };
 
   generateTokens = async (userId: number, payload: AdditionalJwtPayload): Promise<Tokens> => {
