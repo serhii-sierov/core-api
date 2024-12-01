@@ -1,6 +1,6 @@
 import { UseGuards } from '@nestjs/common';
 import { Args, Context, Mutation, Resolver } from '@nestjs/graphql';
-import { HttpClientInfo } from 'decorators';
+import { IpAddress, UserAgent } from 'decorators';
 import { Response } from 'express';
 
 import { ContextUser, GqlContext } from 'types';
@@ -19,9 +19,10 @@ export class AuthResolver {
   signUp(
     @Args('input') input: SignUpInput,
     @Context('res') res: Response,
-    @HttpClientInfo('summary') device: string,
+    @UserAgent('summary') device?: string,
+    @IpAddress() ipAddress?: string,
   ): Promise<SignUpResponse> {
-    return this.authService.signUp(input, res, device);
+    return this.authService.signUp(input, res, { ipAddress, device });
   }
 
   @Public()
@@ -29,13 +30,13 @@ export class AuthResolver {
   signIn(
     @Args('input') input: SignInInput,
     @Context() context: GqlContext,
-    @HttpClientInfo('summary') device: string,
+    @UserAgent('summary') device?: string,
+    @IpAddress() ipAddress?: string,
   ): Promise<SignInResponse> {
-    // TODO: Implement ip address geo location lookup using https://ipgeolocation.io/
     const { req, res } = context;
     const { refreshToken } = req.cookies;
 
-    return this.authService.signIn(input, res, device, refreshToken);
+    return this.authService.signIn(input, res, { ipAddress, device }, refreshToken);
   }
 
   @Mutation(() => Boolean)
@@ -56,11 +57,15 @@ export class AuthResolver {
   @UseGuards(RefreshTokenGuard)
   @Public()
   @Mutation(() => Boolean)
-  refreshToken(@Context() context: GqlContext, @HttpClientInfo('summary') device: string): Promise<boolean> {
+  refreshToken(
+    @Context() context: GqlContext,
+    @UserAgent('summary') device?: string,
+    @IpAddress() ipAddress?: string,
+  ): Promise<boolean> {
     const { req, res } = context;
-    const { refreshToken } = req.cookies;
+    const refreshToken = req.cookies.refreshToken as string; // Guard ensures it is not undefined
 
-    return this.authService.refreshToken({ refreshToken, device }, res);
+    return this.authService.refreshToken(refreshToken, { ipAddress, device }, res);
   }
 
   @Mutation(() => Boolean)

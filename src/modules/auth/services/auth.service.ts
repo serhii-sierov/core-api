@@ -15,11 +15,12 @@ import { RefreshTokenService } from './refresh-token.service';
 
 import { ErrorMessage } from '../constants';
 import { SignInInput, SignInResponse, SignUpInput, SignUpResponse } from '../dto';
-import { AdditionalJwtPayload, RefreshTokenOptions, SignOutOptions, Tokens } from '../types';
+import { AdditionalJwtPayload, DeviceInfo, SignOutOptions, Tokens } from '../types';
 
 @Injectable()
 export class AuthService {
   private readonly jwtConfig: JwtConfig;
+  private readonly isProduction: boolean;
 
   constructor(
     private readonly dataSource: DataSource,
@@ -29,10 +30,13 @@ export class AuthService {
     private readonly configService: AppConfigService,
   ) {
     this.jwtConfig = this.configService.get('jwt');
+    this.isProduction = this.configService.isProduction();
   }
 
-  signUp = async (input: SignUpInput, res: Response, device: string): Promise<SignUpResponse> => {
+  signUp = async (input: SignUpInput, res: Response, deviceInfo?: DeviceInfo): Promise<SignUpResponse> => {
     const { email, password } = input;
+    const { ipAddress, device } = deviceInfo ?? {};
+    const location = ipAddress && (await this.resolveLocation(ipAddress));
 
     // Check if user exists
     const user = await this.userService.findOne({
@@ -54,14 +58,14 @@ export class AuthService {
         manager,
       );
 
-      const tokens = await this.generateTokens(newUser.id, { email, device });
+      const tokens = await this.generateTokens(newUser.id, { email });
 
       this.setTokensCookie(tokens, res);
 
       const expiresAt = new Date(Date.now() + ms(this.jwtConfig.refreshToken.expiresIn));
 
       await this.refreshTokenService.create(
-        { userId: newUser.id, token: tokens.refreshToken, expiresAt, device },
+        { userId: newUser.id, token: tokens.refreshToken, expiresAt, ipAddress, location, device },
         manager,
       );
 
@@ -72,10 +76,12 @@ export class AuthService {
   signIn = async (
     input: SignInInput,
     res: Response,
-    device: string,
+    deviceInfo?: DeviceInfo,
     requestRefreshToken?: string,
   ): Promise<SignInResponse> => {
     const { email, password } = input;
+    const { ipAddress, device } = deviceInfo ?? {};
+    const location = ipAddress && (await this.resolveLocation(ipAddress));
 
     const user = await this.validateUser(email, password);
 
@@ -83,7 +89,7 @@ export class AuthService {
       throw new UnauthorizedException(ErrorMessage.INVALID_CREDENTIALS);
     }
 
-    const tokens = await this.generateTokens(user.id, { email, device });
+    const tokens = await this.generateTokens(user.id, { email });
 
     this.setTokensCookie(tokens, res);
 
@@ -94,6 +100,8 @@ export class AuthService {
         userId: user.id,
         token: tokens.refreshToken,
         expiresAt,
+        ipAddress,
+        location,
         device,
       },
       requestRefreshToken,
@@ -141,8 +149,9 @@ export class AuthService {
     this.clearTokensCookie(res);
   };
 
-  refreshToken = async (options: RefreshTokenOptions, res: Response): Promise<boolean> => {
-    const { refreshToken, device } = options;
+  refreshToken = async (refreshToken: string, deviceInfo: DeviceInfo, res: Response): Promise<boolean> => {
+    const { ipAddress, device } = deviceInfo;
+    const location = ipAddress && (await this.resolveLocation(ipAddress));
 
     const refreshTokenEntity =
       (Boolean(refreshToken) || null) && (await this.refreshTokenService.findOne({ where: { token: refreshToken } }));
@@ -157,10 +166,7 @@ export class AuthService {
       throw new UnauthorizedException();
     }
 
-    const tokens = await this.generateTokens(user.id, {
-      email: user.email,
-      device: device ?? refreshTokenEntity.device,
-    });
+    const tokens = await this.generateTokens(user.id, { email: user.email });
 
     this.setTokensCookie(tokens, res);
 
@@ -168,7 +174,7 @@ export class AuthService {
 
     await this.refreshTokenService.update(
       { token: refreshToken },
-      { token: tokens.refreshToken, expiresAt, device: refreshTokenEntity.device },
+      { token: tokens.refreshToken, expiresAt, ipAddress, location, device },
     );
 
     return true;
@@ -199,6 +205,12 @@ export class AuthService {
     // Send email with reset link or token
   };
 
+  private readonly resolveLocation = (_ipAddress: string): Promise<string | null> => {
+    // TODO: Implement ip address geo location lookup using https://ipgeolocation.io/
+    // TODO: Consider caching the results
+    return Promise.resolve(null);
+  };
+
   // Validate password using bcrypt
   private readonly validatePassword = (plainPassword: string, hashedPassword: string): Promise<boolean> => {
     return compareHash(plainPassword, hashedPassword);
@@ -207,12 +219,12 @@ export class AuthService {
   private readonly setTokensCookie = (tokens: Tokens, res: Response): void => {
     res.cookie(AppCookie.ACCESS_TOKEN, tokens.accessToken, {
       httpOnly: true,
-      secure: true,
+      secure: this.isProduction,
       maxAge: ms(this.jwtConfig.accessToken.expiresIn),
     });
     res.cookie(AppCookie.REFRESH_TOKEN, tokens.refreshToken, {
-      secure: true,
       httpOnly: true,
+      secure: this.isProduction,
       maxAge: ms(this.jwtConfig.refreshToken.expiresIn),
     });
   };

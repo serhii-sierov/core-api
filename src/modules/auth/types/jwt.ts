@@ -1,6 +1,5 @@
 export type AdditionalJwtPayload = {
   email?: string;
-  device?: string | null;
 };
 
 export type JwtPayload = {

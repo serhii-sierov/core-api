@@ -6,7 +6,8 @@ type RefreshTokenEntity {
   id: Float!
   userId: Float!
   user: UserEntity!
-  token: String!
+  ipAddress: String
+  location: String
   device: String
   expiresAt: DateTime!
   createdAt: DateTime!
@@ -21,7 +22,6 @@ scalar DateTime
 type UserEntity {
   id: Float!
   email: String!
-  password: String
   providers: [ProviderEntity!]!
   refreshTokens: [RefreshTokenEntity!]!
   createdAt: DateTime!

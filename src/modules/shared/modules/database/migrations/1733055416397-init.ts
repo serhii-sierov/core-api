@@ -1,11 +1,11 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class Init1728930363720 implements MigrationInterface {
-  name = 'Init1728930363720';
+export class Init1733055416397 implements MigrationInterface {
+  name = 'Init1733055416397';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
-      `CREATE TABLE "refresh_token_entities" ("id" SERIAL NOT NULL, "user_id" integer NOT NULL, "token" character varying NOT NULL, "device" character varying, "expires_at" TIMESTAMP WITH TIME ZONE NOT NULL, "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updated_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), CONSTRAINT "UQ_dda9081cf3f4031d373e3134ca6" UNIQUE ("token"), CONSTRAINT "PK_ae4d5a02c38f513c5235400b6f7" PRIMARY KEY ("id"))`,
+      `CREATE TABLE "refresh_token_entities" ("id" SERIAL NOT NULL, "user_id" integer NOT NULL, "token" character varying NOT NULL, "ip_address" character varying, "location" character varying, "device" character varying, "expires_at" TIMESTAMP WITH TIME ZONE NOT NULL, "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updated_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), CONSTRAINT "UQ_dda9081cf3f4031d373e3134ca6" UNIQUE ("token"), CONSTRAINT "PK_ae4d5a02c38f513c5235400b6f7" PRIMARY KEY ("id"))`,
     );
     await queryRunner.query(
       `CREATE TABLE "providers" ("id" SERIAL NOT NULL, "user_id" integer NOT NULL, "provider" character varying NOT NULL, "provider_id" character varying NOT NULL, CONSTRAINT "PK_af13fc2ebf382fe0dad2e4793aa" PRIMARY KEY ("id"))`,

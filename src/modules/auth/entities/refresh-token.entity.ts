@@ -23,16 +23,23 @@ export class RefreshTokenEntity {
   user: UserEntity;
 
   @Column({ unique: true })
-  @Field()
   token: string; // The refresh token value
 
   @Column({ type: 'varchar', nullable: true })
   @Field({ nullable: true })
-  device?: string; // The name of the device the token is associated with
+  ipAddress?: string;
+
+  @Column({ type: 'varchar', nullable: true })
+  @Field(() => String, { nullable: true })
+  location?: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  @Field(() => String, { nullable: true })
+  device?: string | null;
 
   @Column({ type: 'timestamptz' })
   @Field()
-  expiresAt: Date; // Expiry date of the refresh token
+  expiresAt: Date;
 
   @CreateDateColumn({ type: 'timestamptz' })
   @Field()
