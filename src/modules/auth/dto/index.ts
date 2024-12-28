@@ -6,6 +6,4 @@ export * from './sign-in-input';
 
 export * from './sign-in-response';
 
-export * from './sign-out-input';
-
 export * from './change-password-input';
