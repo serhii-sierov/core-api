@@ -18,7 +18,7 @@ export class SessionEntity {
   @Field(() => Int)
   userId: number;
 
-  @ManyToOne(() => UserEntity, user => user.id, {
+  @ManyToOne(() => UserEntity, user => user.sessions, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
     cascade: ['insert', 'update'],

@@ -23,13 +23,13 @@ scalar DateTime
 type UserEntity {
   id: Int!
   email: String!
-  providers: [ProviderEntity!]!
+  identities: [IdentityEntity!]!
   sessions: [SessionEntity!]!
   createdAt: DateTime!
   updatedAt: DateTime!
 }
 
-type ProviderEntity {
+type IdentityEntity {
   id: Int!
   userId: Int!
   user: UserEntity!

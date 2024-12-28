@@ -14,7 +14,7 @@ export class UserResolver {
   getUser(@CurrentUser() contextUser: ContextUser): Promise<UserEntity | null> {
     return this.userService.findOne({
       where: { id: contextUser.id },
-      relations: { providers: true, sessions: true },
+      relations: { identities: true, sessions: true },
     });
   }
 }

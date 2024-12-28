@@ -5,8 +5,8 @@ import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { UserEntity } from './user.entity';
 
 @ObjectType()
-@Entity('providers')
-export class ProviderEntity {
+@Entity('identities')
+export class IdentityEntity {
   @PrimaryGeneratedColumn()
   @Field(() => Int)
   id: number;
@@ -15,7 +15,7 @@ export class ProviderEntity {
   @Field(() => Int)
   userId: number;
 
-  @ManyToOne(() => UserEntity, user => user.providers, {
+  @ManyToOne(() => UserEntity, user => user.identities, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
     cascade: ['insert', 'update'],

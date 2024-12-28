@@ -2,7 +2,7 @@ import { Field, Int, ObjectType } from '@nestjs/graphql';
 import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
 // eslint-disable-next-line import/no-cycle -- Circular dependency inevitable here
-import { ProviderEntity } from './provider.entity';
+import { IdentityEntity } from './identity.entity';
 import { SessionEntity } from './session.entity';
 
 @ObjectType()
@@ -19,9 +19,9 @@ export class UserEntity {
   @Column({ type: 'varchar', nullable: true })
   password?: string; // For local users
 
-  @OneToMany(() => ProviderEntity, provider => provider.user, { cascade: true })
-  @Field(() => [ProviderEntity])
-  providers: ProviderEntity[]; // Linked OAuth providers
+  @OneToMany(() => IdentityEntity, identity => identity.user, { cascade: true })
+  @Field(() => [IdentityEntity])
+  identities: IdentityEntity[]; // Linked OAuth providers
 
   @OneToMany(() => SessionEntity, session => session.user, { cascade: true })
   @Field(() => [SessionEntity])

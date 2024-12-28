@@ -1,4 +1,4 @@
-export * from './provider.entity';
+export * from './identity.entity';
 
 export * from './user.entity';
 

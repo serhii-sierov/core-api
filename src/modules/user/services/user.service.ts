@@ -4,7 +4,7 @@ import { EntityManager, Repository } from 'typeorm';
 
 import { Create, Destroy, FindAll, FindOne, Increment, Update } from 'types';
 
-import { ProviderEntity, UserEntity } from '../entities';
+import { IdentityEntity, UserEntity } from '../entities';
 
 @Injectable()
 export class UserService {
@@ -12,8 +12,8 @@ export class UserService {
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
 
-    @InjectRepository(ProviderEntity)
-    private readonly providerRepository: Repository<ProviderEntity>,
+    @InjectRepository(IdentityEntity)
+    private readonly identityRepository: Repository<IdentityEntity>,
   ) {}
 
   private getRepository(manager?: EntityManager): Repository<UserEntity> {
@@ -65,9 +65,9 @@ export class UserService {
     return affected ?? 0;
   };
 
-  async addProvider(user: UserEntity, providerData: Partial<ProviderEntity>): Promise<ProviderEntity> {
-    const provider = this.providerRepository.create({ ...providerData, user });
+  async addIdentity(user: UserEntity, identityData: Partial<IdentityEntity>): Promise<IdentityEntity> {
+    const identity = this.identityRepository.create({ ...identityData, user });
 
-    return this.providerRepository.save(provider);
+    return this.identityRepository.save(identity);
   }
 }
