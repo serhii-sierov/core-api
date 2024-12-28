@@ -21,11 +21,11 @@ export class UserEntity {
 
   @OneToMany(() => IdentityEntity, identity => identity.user, { cascade: true })
   @Field(() => [IdentityEntity])
-  identities: IdentityEntity[]; // Linked OAuth providers
+  identities: IdentityEntity[];
 
   @OneToMany(() => SessionEntity, session => session.user, { cascade: true })
   @Field(() => [SessionEntity])
-  sessions: SessionEntity[]; // Associated refresh tokens
+  sessions: SessionEntity[];
 
   @CreateDateColumn({ type: 'timestamptz' })
   @Field()
