@@ -6,7 +6,7 @@ import { Response } from 'express';
 import { ContextUser, GqlContext } from 'types';
 
 import { CurrentUser, Public } from './decorators';
-import { ChangePasswordInput, SignInInput, SignInResponse, SignOutInput, SignUpInput, SignUpResponse } from './dto';
+import { ChangePasswordInput, SignInInput, SignInResponse, SignUpInput, SignUpResponse } from './dto';
 import { RefreshTokenGuard } from './guards';
 import { AuthService } from './services';
 
@@ -40,18 +40,8 @@ export class AuthResolver {
   }
 
   @Mutation(() => Boolean)
-  async signOut(
-    @Args('input') input: SignOutInput,
-    @Context() context: GqlContext,
-    @CurrentUser() currentUser: ContextUser,
-  ): Promise<boolean> {
-    const { useAllDevices } = input ?? {};
-    const { req, res } = context;
-    const { refreshToken } = req.cookies;
-
-    await this.authService.signOut({ userId: currentUser.id, refreshToken, useAllDevices }, res);
-
-    return true;
+  signOut(@Context('res') res: Response, @CurrentUser() currentUser: ContextUser): Promise<boolean> {
+    return this.authService.signOut(currentUser.sessionId, res);
   }
 
   @UseGuards(RefreshTokenGuard)
@@ -63,6 +53,7 @@ export class AuthResolver {
     @IpAddress() ipAddress?: string,
   ): Promise<boolean> {
     const { req, res } = context;
+
     const refreshToken = req.cookies.refreshToken as string; // Guard ensures it is not undefined
 
     return this.authService.refreshToken(refreshToken, { ipAddress, device }, res);

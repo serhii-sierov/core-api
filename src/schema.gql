@@ -2,8 +2,9 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type RefreshTokenEntity {
+type SessionEntity {
   id: Int!
+  sessionId: String!
   userId: Int!
   user: UserEntity!
   ipAddress: String
@@ -23,7 +24,7 @@ type UserEntity {
   id: Int!
   email: String!
   providers: [ProviderEntity!]!
-  refreshTokens: [RefreshTokenEntity!]!
+  sessions: [SessionEntity!]!
   createdAt: DateTime!
   updatedAt: DateTime!
 }
@@ -51,7 +52,7 @@ type Query {
 type Mutation {
   signUp(input: SignUpInput!): SignUpResponse!
   signIn(input: SignInInput!): SignInResponse!
-  signOut(input: SignOutInput!): Boolean!
+  signOut: Boolean!
   refreshToken: Boolean!
   changePassword(input: ChangePasswordInput!): Boolean!
 }
@@ -64,10 +65,7 @@ input SignUpInput {
 input SignInInput {
   email: String!
   password: String!
-}
-
-input SignOutInput {
-  useAllDevices: Boolean!
+  forceNewSession: Boolean
 }
 
 input ChangePasswordInput {

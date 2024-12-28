@@ -24,7 +24,7 @@ export const config = (): DataSourceOptions => {
   const url = isTestEnvironment ? testUrl : dbUrl;
 
   // when running migrations, determine directory / extension from the filename
-  const [dir, ext] = RegExp(/(src|dist)\/config\/data-source\.(js|ts)/i)
+  const [dir, ext] = RegExp(/(src|dist)\/modules\/shared\/modules\/database\/data-source\.(js|ts)/i)
     .exec(__filename)
     ?.slice(1) ?? ['dist', 'js'];
 

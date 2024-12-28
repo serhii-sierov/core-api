@@ -57,7 +57,7 @@ export class ScheduleService<DataType = any, ResultType = void> implements OnMod
     return this.scheduleQueue.removeJobScheduler(name);
   }
 
-  async initScheduleQueue(): Promise<void> {
+  private async initScheduleQueue(): Promise<void> {
     await Promise.all(
       Object.entries(scheduleTasks)
         .filter(([, { autoStart }]) => autoStart)

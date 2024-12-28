@@ -1,7 +1,7 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql';
 import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
-import { RefreshTokenEntity } from 'modules/auth/entities/refresh-token.entity';
+import { SessionEntity } from 'modules/auth/entities/session.entity';
 
 // eslint-disable-next-line import/no-cycle -- Circular dependency inevitable here
 import { ProviderEntity } from './provider.entity';
@@ -24,9 +24,9 @@ export class UserEntity {
   @Field(() => [ProviderEntity])
   providers: ProviderEntity[]; // Linked OAuth providers
 
-  @OneToMany(() => RefreshTokenEntity, refreshToken => refreshToken.user, { cascade: true })
-  @Field(() => [RefreshTokenEntity])
-  refreshTokens: RefreshTokenEntity[]; // Associated refresh tokens
+  @OneToMany(() => SessionEntity, session => session.user, { cascade: true })
+  @Field(() => [SessionEntity])
+  sessions: SessionEntity[]; // Associated refresh tokens
 
   @CreateDateColumn({ type: 'timestamptz' })
   @Field()

@@ -4,17 +4,21 @@ import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, Up
 import { UserEntity } from 'modules/user/entities/user.entity';
 
 @ObjectType()
-@Entity()
-export class RefreshTokenEntity {
+@Entity('sessions')
+export class SessionEntity {
   @PrimaryGeneratedColumn()
   @Field(() => Int)
   id: number;
+
+  @Column('uuid', { unique: true })
+  @Field(() => String)
+  sessionId: string;
 
   @Column()
   @Field(() => Int)
   userId: number;
 
-  @ManyToOne(() => UserEntity, user => user.refreshTokens, {
+  @ManyToOne(() => UserEntity, user => user.id, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
     cascade: ['insert', 'update'],
@@ -23,7 +27,7 @@ export class RefreshTokenEntity {
   user: UserEntity;
 
   @Column({ unique: true })
-  token: string; // The refresh token value
+  nonceHash: string;
 
   @Column({ type: 'varchar', nullable: true })
   @Field({ nullable: true })

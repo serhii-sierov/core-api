@@ -91,6 +91,7 @@
     "@types/pluralize": "^0.0.33",
     "@types/request-ip": "^0.0.41",
     "@types/supertest": "^6.0.2",
+    "@types/uuid": "^10.0.0",
     "@types/ws": "^8.5.12",
     "@typescript-eslint/eslint-plugin": "^8.8.1",
     "@typescript-eslint/parser": "^8.8.1",

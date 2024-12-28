@@ -1,14 +1,14 @@
 import { Injectable } from '@nestjs/common';
 
-import { RefreshTokenService } from 'modules/auth/services';
+import { SessionService } from 'modules/auth/services';
 
 import { TaskProcessor } from '../types';
 
 @Injectable()
 export class CleanupAuthTaskProcessor implements TaskProcessor {
-  constructor(private readonly refreshTokenService: RefreshTokenService) {}
+  constructor(private readonly sessionService: SessionService) {}
 
   handle = (): Promise<void> => {
-    return this.refreshTokenService.cleanupExpiredTokens();
+    return this.sessionService.deleteExpired();
   };
 }

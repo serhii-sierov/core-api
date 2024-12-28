@@ -1,21 +1,25 @@
 import { AppCookie } from '@constants';
-import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, LoggerService, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Response } from 'express';
+import * as jwt from 'jsonwebtoken';
 import ms from 'ms';
+import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { DataSource } from 'typeorm';
+import { v4 as uuid } from 'uuid';
 
 import { AppConfigService } from 'modules/shared/modules/config';
 import { JwtConfig } from 'modules/shared/modules/config/loaders';
 import { UserEntity } from 'modules/user/entities/user.entity';
 import { UserService } from 'modules/user/services';
-import { compareHash, hash } from 'utils';
+import { compareHash, generateRandomSecret, hash } from 'utils';
 
-import { RefreshTokenService } from './refresh-token.service';
+import { SessionService } from './session.service';
 
 import { ErrorMessage } from '../constants';
 import { SignInInput, SignInResponse, SignUpInput, SignUpResponse } from '../dto';
-import { AdditionalJwtPayload, DeviceInfo, SignOutOptions, Tokens } from '../types';
+import { SessionEntity } from '../entities/session.entity';
+import { AdditionalJwtPayload, DeviceInfo, GenerateTokensResult, JwtPayload, Tokens } from '../types';
 
 @Injectable()
 export class AuthService {
@@ -26,8 +30,9 @@ export class AuthService {
     private readonly dataSource: DataSource,
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
-    private readonly refreshTokenService: RefreshTokenService,
+    private readonly sessionService: SessionService,
     private readonly configService: AppConfigService,
+    @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly loggerService: LoggerService,
   ) {
     this.jwtConfig = this.configService.get('jwt');
     this.isProduction = this.configService.isProduction();
@@ -58,14 +63,26 @@ export class AuthService {
         manager,
       );
 
-      const tokens = await this.generateTokens(newUser.id, { email });
+      const sessionId = uuid();
+
+      const tokens = await this.generateTokens(newUser.id, { email, sessionId });
 
       this.setTokensCookie(tokens, res);
 
       const expiresAt = new Date(Date.now() + ms(this.jwtConfig.refreshToken.expiresIn));
 
-      await this.refreshTokenService.create(
-        { userId: newUser.id, token: tokens.refreshToken, expiresAt, ipAddress, location, device },
+      const nonceHash = await hash(tokens.nonce);
+
+      await this.sessionService.create(
+        {
+          sessionId,
+          userId: newUser.id,
+          nonceHash,
+          expiresAt,
+          ipAddress,
+          location,
+          device,
+        },
         manager,
       );
 
@@ -79,7 +96,7 @@ export class AuthService {
     deviceInfo?: DeviceInfo,
     requestRefreshToken?: string,
   ): Promise<SignInResponse> => {
-    const { email, password } = input;
+    const { email, password, forceNewSession } = input;
     const { ipAddress, device } = deviceInfo ?? {};
     const location = ipAddress && (await this.resolveLocation(ipAddress));
 
@@ -89,40 +106,75 @@ export class AuthService {
       throw new UnauthorizedException(ErrorMessage.INVALID_CREDENTIALS);
     }
 
-    const tokens = await this.generateTokens(user.id, { email });
+    let sessionId = uuid();
+    let isSessionExists = false;
+
+    if (requestRefreshToken) {
+      const { sessionId: prevSessionId, nonce } = jwt.verify(
+        requestRefreshToken,
+        this.jwtConfig.refreshToken.secret,
+      ) as JwtPayload;
+
+      const existingSession = sessionId
+        ? await this.sessionService.findOne({
+            where: { userId: user.id, sessionId: prevSessionId },
+          })
+        : null;
+
+      if (existingSession && nonce && (await compareHash(nonce, existingSession.nonceHash))) {
+        if (forceNewSession) {
+          await this.sessionService.destroy({ sessionId: prevSessionId });
+        } else {
+          sessionId = existingSession?.sessionId;
+          isSessionExists = true;
+        }
+      }
+    }
+
+    const tokens = await this.generateTokens(user.id, { email, sessionId });
 
     this.setTokensCookie(tokens, res);
 
     const expiresAt = new Date(Date.now() + ms(this.jwtConfig.refreshToken.expiresIn));
 
-    await this.refreshTokenService.insertOrUpdateToken(
-      {
-        userId: user.id,
-        token: tokens.refreshToken,
-        expiresAt,
-        ipAddress,
-        location,
-        device,
-      },
-      requestRefreshToken,
-    );
+    const nonceHash = await hash(tokens.nonce);
+
+    const session: Partial<SessionEntity> = {
+      userId: user.id,
+      nonceHash,
+      expiresAt,
+      ipAddress,
+      location,
+      device,
+    };
+
+    if (isSessionExists) {
+      await this.sessionService.update({ sessionId }, session);
+    } else {
+      await this.sessionService.create({ sessionId, ...session });
+    }
 
     return { userId: user.id };
   };
 
-  generateTokens = async (userId: number, payload: AdditionalJwtPayload): Promise<Tokens> => {
+  generateTokens = async (userId: number, payload: AdditionalJwtPayload): Promise<GenerateTokensResult> => {
+    const nonce = generateRandomSecret();
+
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(payload, {
         subject: String(userId),
         ...this.jwtConfig.accessToken,
       }),
-      this.jwtService.signAsync(payload, {
-        subject: String(userId),
-        ...this.jwtConfig.refreshToken,
-      }),
+      this.jwtService.signAsync(
+        { ...payload, nonce },
+        {
+          subject: String(userId),
+          ...this.jwtConfig.refreshToken,
+        },
+      ),
     ]);
 
-    return { accessToken, refreshToken };
+    return { accessToken, refreshToken, nonce };
   };
 
   validateUser = async (email: string, password: string): Promise<UserEntity | null> => {
@@ -135,47 +187,55 @@ export class AuthService {
     return null;
   };
 
-  signOut = async (options: SignOutOptions, res: Response): Promise<void> => {
-    const { userId, refreshToken, useAllDevices } = options;
-
-    if (useAllDevices) {
-      await this.refreshTokenService.destroy({ userId });
-    } else {
-      await this.refreshTokenService.destroy({ token: refreshToken });
-    }
+  signOut = async (sessionId: string, res: Response): Promise<boolean> => {
+    const deletedRows = await this.sessionService.destroy({ sessionId });
 
     this.clearTokensCookie(res);
+
+    return Boolean(deletedRows);
   };
 
   refreshToken = async (refreshToken: string, deviceInfo: DeviceInfo, res: Response): Promise<boolean> => {
     const { ipAddress, device } = deviceInfo;
     const location = ipAddress && (await this.resolveLocation(ipAddress));
 
-    const refreshTokenEntity =
-      (Boolean(refreshToken) || null) && (await this.refreshTokenService.findOne({ where: { token: refreshToken } }));
+    const { sessionId, nonce = '' } = jwt.verify(refreshToken, this.jwtConfig.refreshToken.secret) as JwtPayload;
 
-    if (!refreshTokenEntity) {
+    const session = sessionId
+      ? await this.sessionService.findOne({ where: { sessionId }, relations: { user: true } })
+      : null;
+
+    if (!session) {
+      this.clearTokensCookie(res);
+
       throw new UnauthorizedException();
     }
 
-    const user = await this.userService.findOne({ where: { id: refreshTokenEntity.userId } });
+    const user = session.user;
 
-    if (!user) {
+    if (!(await compareHash(nonce, session.nonceHash))) {
+      await this.sessionService.destroy({ sessionId });
+      this.clearTokensCookie(res);
+
+      this.loggerService.error('Invalid nonce hash. Session destroyed.', { userId: user.id, sessionId });
+
       throw new UnauthorizedException();
     }
 
-    const tokens = await this.generateTokens(user.id, { email: user.email });
+    const tokens = await this.generateTokens(user.id, { email: user.email, sessionId });
 
     this.setTokensCookie(tokens, res);
 
     const expiresAt = new Date(Date.now() + ms(this.jwtConfig.refreshToken.expiresIn));
 
-    await this.refreshTokenService.update(
-      { token: refreshToken },
-      { token: tokens.refreshToken, expiresAt, ipAddress, location, device },
+    const nonceHash = await hash(tokens.nonce);
+
+    const [affectedCount] = await this.sessionService.update(
+      { sessionId },
+      { nonceHash, expiresAt, ipAddress, location, device },
     );
 
-    return true;
+    return affectedCount === 1;
   };
 
   changePassword = async (oldPassword: string, newPassword: string, userId: number): Promise<boolean> => {

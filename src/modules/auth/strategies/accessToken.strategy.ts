@@ -32,12 +32,18 @@ export class AccessTokenStrategy extends PassportStrategy(Strategy, 'jwt') {
   }
 
   async validate(_req: AppRequest, payload: JwtPayload): Promise<ContextUser> {
-    const user = await this.userService.findOne({ where: { id: Number(payload.sub) } });
+    const sessionId = payload.sessionId;
 
-    if (!user) {
+    if (!sessionId) {
       throw new UnauthorizedException();
     }
 
-    return { id: user.id, email: user.email };
+    const user = await this.userService.findOne({ where: { id: Number(payload.sub), sessions: { sessionId } } });
+
+    if (!user || !sessionId) {
+      throw new UnauthorizedException();
+    }
+
+    return { id: user.id, sessionId, email: user.email };
   }
 }

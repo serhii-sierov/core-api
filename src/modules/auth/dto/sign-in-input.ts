@@ -7,4 +7,7 @@ export class SignInInput {
 
   @Field()
   password: string;
+
+  @Field({ nullable: true })
+  forceNewSession?: boolean;
 }

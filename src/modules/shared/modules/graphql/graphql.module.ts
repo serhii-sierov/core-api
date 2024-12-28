@@ -31,16 +31,6 @@ import { AppConfigService } from '../config';
               configService,
               cacheManager,
             }),
-          //   formatError: (formattedError, error) => {
-          //     const { originalError } = error as GraphQLError;
-          //     let { message } = formattedError;
-
-          //     if (originalError instanceof JsonWebTokenError) {
-          //       message = ErrorMessage.NOT_AUTHORIZED_ERROR;
-          //     }
-
-          //     return { message };
-          //   },
         };
       },
       imports: [],

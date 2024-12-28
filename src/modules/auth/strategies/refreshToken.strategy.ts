@@ -32,12 +32,18 @@ export class RefreshTokenStrategy extends PassportStrategy(Strategy, 'jwt-refres
   }
 
   async validate(_req: AppRequest, payload: JwtPayload): Promise<ContextUser> {
-    const user = await this.userService.findOne({ where: { id: Number(payload.sub) } });
+    const sessionId = payload.sessionId;
+
+    if (!sessionId) {
+      throw new UnauthorizedException();
+    }
+
+    const user = await this.userService.findOne({ where: { id: Number(payload.sub), sessions: { sessionId } } });
 
     if (!user) {
       throw new UnauthorizedException();
     }
 
-    return { id: user.id, email: user.email };
+    return { id: user.id, sessionId, email: user.email };
   }
 }

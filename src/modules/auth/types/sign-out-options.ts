@@ -1,5 +1,4 @@
 export type SignOutOptions = {
-  userId: number;
+  sessionId: string;
   refreshToken?: string;
-  useAllDevices?: boolean | null;
 };
