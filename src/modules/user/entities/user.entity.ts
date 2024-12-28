@@ -1,10 +1,9 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql';
 import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
-import { SessionEntity } from 'modules/auth/entities/session.entity';
-
 // eslint-disable-next-line import/no-cycle -- Circular dependency inevitable here
 import { ProviderEntity } from './provider.entity';
+import { SessionEntity } from './session.entity';
 
 @ObjectType()
 @Entity('users')

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 
-import { SessionService } from 'modules/auth/services';
+import { SessionService } from 'modules/user/services';
 
 import { TaskProcessor } from '../types';
 

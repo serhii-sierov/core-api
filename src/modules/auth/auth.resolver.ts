@@ -5,10 +5,10 @@ import { Response } from 'express';
 
 import { ContextUser, GqlContext } from 'types';
 
+import { AuthService } from './auth.service';
 import { CurrentUser, Public } from './decorators';
 import { ChangePasswordInput, SignInInput, SignInResponse, SignUpInput, SignUpResponse } from './dto';
 import { RefreshTokenGuard } from './guards';
-import { AuthService } from './services';
 
 @Resolver()
 export class AuthResolver {

@@ -10,16 +10,14 @@ import { v4 as uuid } from 'uuid';
 
 import { AppConfigService } from 'modules/shared/modules/config';
 import { JwtConfig } from 'modules/shared/modules/config/loaders';
+import { SessionEntity } from 'modules/user/entities';
 import { UserEntity } from 'modules/user/entities/user.entity';
-import { UserService } from 'modules/user/services';
+import { SessionService, UserService } from 'modules/user/services';
 import { compareHash, generateRandomSecret, hash } from 'utils';
 
-import { SessionService } from './session.service';
-
-import { ErrorMessage } from '../constants';
-import { SignInInput, SignInResponse, SignUpInput, SignUpResponse } from '../dto';
-import { SessionEntity } from '../entities/session.entity';
-import { AdditionalJwtPayload, DeviceInfo, GenerateTokensResult, JwtPayload, Tokens } from '../types';
+import { ErrorMessage } from './constants';
+import { SignInInput, SignInResponse, SignUpInput, SignUpResponse } from './dto';
+import { AdditionalJwtPayload, DeviceInfo, GenerateTokensResult, JwtPayload, Tokens } from './types';
 
 @Injectable()
 export class AuthService {
@@ -217,7 +215,7 @@ export class AuthService {
       await this.sessionService.destroy({ sessionId });
       this.clearTokensCookie(res);
 
-      this.loggerService.error('Invalid nonce hash. Session destroyed.', { userId: user.id, sessionId });
+      this.loggerService.error(ErrorMessage.INVALID_NONCE_HASH, { userId: user.id, sessionId });
 
       throw new UnauthorizedException();
     }
