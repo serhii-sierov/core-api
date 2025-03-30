@@ -3,9 +3,14 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 import { BaseEnvironmentVariables } from './environment-variables';
-import { DatabaseConfigLoader, JwtConfigLoader, RedisConfigLoader } from './loaders';
+import { DatabaseConfigLoader, GoogleConfigLoader, JwtConfigLoader, RedisConfigLoader } from './loaders';
 
-interface ConfigValues extends BaseEnvironmentVariables, RedisConfigLoader, JwtConfigLoader, DatabaseConfigLoader {}
+interface ConfigValues
+  extends BaseEnvironmentVariables,
+    RedisConfigLoader,
+    JwtConfigLoader,
+    DatabaseConfigLoader,
+    GoogleConfigLoader {}
 
 @Injectable()
 export class AppConfigService extends ConfigService<ConfigValues, true> {

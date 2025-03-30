@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, LessThan, Repository } from 'typeorm';
 
 import { SessionEntity } from 'modules/user/entities';
-import { Create, Destroy, Exists, FindAll, FindOne, Update, Upsert } from 'types';
+import { Create, Destroy, Exists, FindAll, FindOne, FindOneOrFail, Update, Upsert } from 'types';
 
 @Injectable()
 export class SessionService {
@@ -26,6 +26,12 @@ export class SessionService {
     const repository = this.getRepository(transactionManager);
 
     return repository.findOne(options);
+  };
+
+  findOneOrFail: FindOneOrFail<SessionEntity> = (options, transactionManager) => {
+    const repository = this.getRepository(transactionManager);
+
+    return repository.findOneOrFail(options);
   };
 
   findAll: FindAll<SessionEntity> = (options, transactionManager) => {

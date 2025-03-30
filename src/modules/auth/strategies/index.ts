@@ -1,3 +1,3 @@
-export * from './accessToken.strategy';
+export * from './access-token.strategy';
 
-export * from './refreshToken.strategy';
+export * from './refresh-token.strategy';

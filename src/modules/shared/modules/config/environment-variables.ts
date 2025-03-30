@@ -1,6 +1,11 @@
 import { Environments } from '@constants';
 
-import { DatabaseEnvironmentVariables, JwtEnvironmentVariables, RedisEnvironmentVariables } from './loaders';
+import {
+  DatabaseEnvironmentVariables,
+  GoogleEnvironmentVariables,
+  JwtEnvironmentVariables,
+  RedisEnvironmentVariables,
+} from './loaders';
 
 export interface BaseEnvironmentVariables {
   NODE_ENV: Environments;
@@ -15,4 +20,5 @@ export interface EnvironmentVariables
   extends BaseEnvironmentVariables,
     DatabaseEnvironmentVariables,
     JwtEnvironmentVariables,
-    RedisEnvironmentVariables {}
+    RedisEnvironmentVariables,
+    GoogleEnvironmentVariables {}

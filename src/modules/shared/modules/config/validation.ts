@@ -34,6 +34,10 @@ export const envValidationSchema = Joi.object<EnvironmentVariables, true>({
   JWT_ACCESS_TOKEN_EXPIRES: Joi.string().default('15m'),
   JWT_REFRESH_TOKEN_SECRET: Joi.string().required(),
   JWT_REFRESH_TOKEN_EXPIRES: Joi.string().default('30d'),
+
+  GOOGLE_CLIENT_ID: Joi.string().required(),
+  GOOGLE_CLIENT_SECRET: Joi.string().required(),
+  GOOGLE_CALLBACK_URL: Joi.string().required(),
 })
   .when(Joi.object({ NODE_ENV: Joi.valid('production').required() }).unknown(), {
     then: Joi.object({

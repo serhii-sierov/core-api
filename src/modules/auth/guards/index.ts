@@ -1,3 +1,3 @@
 export * from './google-auth.guard';
 
-export * from './refreshToken.guard';
+export * from './refresh-token.guard';

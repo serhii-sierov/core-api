@@ -16,7 +16,7 @@ import { SessionService, UserService } from 'modules/user/services';
 import { compareHash, generateRandomSecret, hash } from 'utils';
 
 import { ErrorMessage } from './constants';
-import { SignInInput, SignInResponse, SignUpInput, SignUpResponse } from './dto';
+import { SignInInput, SignUpInput } from './dto';
 import { AdditionalJwtPayload, DeviceInfo, GenerateTokensResult, JwtPayload, Tokens } from './types';
 
 @Injectable()
@@ -36,7 +36,7 @@ export class AuthService {
     this.isProduction = this.configService.isProduction();
   }
 
-  signUp = async (input: SignUpInput, res: Response, deviceInfo?: DeviceInfo): Promise<SignUpResponse> => {
+  signUp = async (input: SignUpInput, res: Response, deviceInfo?: DeviceInfo): Promise<SessionEntity> => {
     const { email, password } = input;
     const { ipAddress, device } = deviceInfo ?? {};
     const location = ipAddress && (await this.resolveLocation(ipAddress));
@@ -69,13 +69,13 @@ export class AuthService {
 
       const expiresAt = new Date(Date.now() + ms(this.jwtConfig.refreshToken.expiresIn));
 
-      const nonceHash = await hash(tokens.nonce);
+      const jtiHash = await hash(tokens.jti);
 
-      await this.sessionService.create(
+      return this.sessionService.create(
         {
           sessionId,
           userId: newUser.id,
-          nonceHash,
+          jtiHash,
           expiresAt,
           ipAddress,
           location,
@@ -83,8 +83,6 @@ export class AuthService {
         },
         manager,
       );
-
-      return { userId: newUser.id };
     });
   };
 
@@ -93,7 +91,7 @@ export class AuthService {
     res: Response,
     deviceInfo?: DeviceInfo,
     requestRefreshToken?: string,
-  ): Promise<SignInResponse> => {
+  ): Promise<SessionEntity> => {
     const { email, password, forceNewSession } = input;
     const { ipAddress, device } = deviceInfo ?? {};
     const location = ipAddress && (await this.resolveLocation(ipAddress));
@@ -108,7 +106,7 @@ export class AuthService {
     let isSessionExists = false;
 
     if (requestRefreshToken) {
-      const { sessionId: prevSessionId, nonce } = jwt.verify(
+      const { sessionId: prevSessionId, jti } = jwt.verify(
         requestRefreshToken,
         this.jwtConfig.refreshToken.secret,
       ) as JwtPayload;
@@ -119,7 +117,7 @@ export class AuthService {
           })
         : null;
 
-      if (existingSession && nonce && (await compareHash(nonce, existingSession.nonceHash))) {
+      if (existingSession && jti && (await compareHash(jti, existingSession.jtiHash))) {
         if (forceNewSession) {
           await this.sessionService.destroy({ sessionId: prevSessionId });
         } else {
@@ -135,11 +133,11 @@ export class AuthService {
 
     const expiresAt = new Date(Date.now() + ms(this.jwtConfig.refreshToken.expiresIn));
 
-    const nonceHash = await hash(tokens.nonce);
+    const jtiHash = await hash(tokens.jti);
 
     const session: Partial<SessionEntity> = {
       userId: user.id,
-      nonceHash,
+      jtiHash,
       expiresAt,
       ipAddress,
       location,
@@ -152,11 +150,14 @@ export class AuthService {
       await this.sessionService.create({ sessionId, ...session });
     }
 
-    return { userId: user.id };
+    return this.sessionService.findOneOrFail({
+      where: { sessionId },
+      relations: { user: { identities: true } },
+    });
   };
 
   generateTokens = async (userId: number, payload: AdditionalJwtPayload): Promise<GenerateTokensResult> => {
-    const nonce = generateRandomSecret();
+    const jti = generateRandomSecret();
 
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(payload, {
@@ -164,7 +165,7 @@ export class AuthService {
         ...this.jwtConfig.accessToken,
       }),
       this.jwtService.signAsync(
-        { ...payload, nonce },
+        { ...payload, jti },
         {
           subject: String(userId),
           ...this.jwtConfig.refreshToken,
@@ -172,7 +173,7 @@ export class AuthService {
       ),
     ]);
 
-    return { accessToken, refreshToken, nonce };
+    return { accessToken, refreshToken, jti };
   };
 
   validateUser = async (email: string, password: string): Promise<UserEntity | null> => {
@@ -193,11 +194,11 @@ export class AuthService {
     return Boolean(deletedRows);
   };
 
-  refreshToken = async (refreshToken: string, deviceInfo: DeviceInfo, res: Response): Promise<boolean> => {
+  refreshToken = async (refreshToken: string, deviceInfo: DeviceInfo, res: Response): Promise<SessionEntity | null> => {
     const { ipAddress, device } = deviceInfo;
     const location = ipAddress && (await this.resolveLocation(ipAddress));
 
-    const { sessionId, nonce = '' } = jwt.verify(refreshToken, this.jwtConfig.refreshToken.secret) as JwtPayload;
+    const { sessionId, jti = '' } = jwt.verify(refreshToken, this.jwtConfig.refreshToken.secret) as JwtPayload;
 
     const session = sessionId
       ? await this.sessionService.findOne({ where: { sessionId }, relations: { user: true } })
@@ -211,29 +212,31 @@ export class AuthService {
 
     const user = session.user;
 
-    if (!(await compareHash(nonce, session.nonceHash))) {
+    if (!(await compareHash(jti, session.jtiHash))) {
       await this.sessionService.destroy({ sessionId });
       this.clearTokensCookie(res);
 
-      this.loggerService.error(ErrorMessage.INVALID_NONCE_HASH, { userId: user.id, sessionId });
+      this.loggerService.error(ErrorMessage.INVALID_GWT_ID_HASH, { userId: user.id, sessionId });
 
       throw new UnauthorizedException();
     }
 
     const tokens = await this.generateTokens(user.id, { email: user.email, sessionId });
 
+    console.log({ 'OLD TOKEN': refreshToken, 'NEW TOKEN': tokens.refreshToken });
+
     this.setTokensCookie(tokens, res);
 
     const expiresAt = new Date(Date.now() + ms(this.jwtConfig.refreshToken.expiresIn));
 
-    const nonceHash = await hash(tokens.nonce);
+    const jtiHash = await hash(tokens.jti);
 
-    const [affectedCount] = await this.sessionService.update(
-      { sessionId },
-      { nonceHash, expiresAt, ipAddress, location, device },
+    const [, updatedSession] = await this.sessionService.update(
+      { sessionId: session.sessionId },
+      { jtiHash, expiresAt, ipAddress, location, device },
     );
 
-    return affectedCount === 1;
+    return updatedSession?.[0] ?? null;
   };
 
   changePassword = async (oldPassword: string, newPassword: string, userId: number): Promise<boolean> => {

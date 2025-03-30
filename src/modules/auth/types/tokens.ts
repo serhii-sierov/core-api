@@ -4,5 +4,5 @@ export type Tokens = {
 };
 
 export type GenerateTokensResult = Tokens & {
-  nonce: string;
+  jti: string;
 };

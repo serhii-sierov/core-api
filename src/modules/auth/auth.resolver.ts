@@ -3,11 +3,12 @@ import { Args, Context, Mutation, Resolver } from '@nestjs/graphql';
 import { IpAddress, UserAgent } from 'decorators';
 import { Response } from 'express';
 
+import { SessionEntity } from 'modules/user/entities';
 import { ContextUser, GqlContext } from 'types';
 
 import { AuthService } from './auth.service';
 import { CurrentUser, Public } from './decorators';
-import { ChangePasswordInput, SignInInput, SignInResponse, SignUpInput, SignUpResponse } from './dto';
+import { ChangePasswordInput, SignInInput, SignUpInput } from './dto';
 import { RefreshTokenGuard } from './guards';
 
 @Resolver()
@@ -15,26 +16,28 @@ export class AuthResolver {
   constructor(private readonly authService: AuthService) {}
 
   @Public()
-  @Mutation(() => SignUpResponse)
+  @Mutation(() => SessionEntity)
   signUp(
     @Args('input') input: SignUpInput,
     @Context('res') res: Response,
     @UserAgent('summary') device?: string,
     @IpAddress() ipAddress?: string,
-  ): Promise<SignUpResponse> {
+  ): Promise<SessionEntity> {
     return this.authService.signUp(input, res, { ipAddress, device });
   }
 
   @Public()
-  @Mutation(() => SignInResponse)
+  @Mutation(() => SessionEntity)
   signIn(
     @Args('input') input: SignInInput,
     @Context() context: GqlContext,
     @UserAgent('summary') device?: string,
     @IpAddress() ipAddress?: string,
-  ): Promise<SignInResponse> {
+  ): Promise<SessionEntity> {
     const { req, res } = context;
     const { refreshToken } = req.cookies;
+
+    console.log(input, { cookies: req.cookies });
 
     return this.authService.signIn(input, res, { ipAddress, device }, refreshToken);
   }
@@ -46,12 +49,12 @@ export class AuthResolver {
 
   @UseGuards(RefreshTokenGuard)
   @Public()
-  @Mutation(() => Boolean)
-  refreshToken(
+  @Mutation(() => SessionEntity)
+  refreshTokens(
     @Context() context: GqlContext,
     @UserAgent('summary') device?: string,
     @IpAddress() ipAddress?: string,
-  ): Promise<boolean> {
+  ): Promise<SessionEntity | null> {
     const { req, res } = context;
 
     const refreshToken = req.cookies.refreshToken as string; // Guard ensures it is not undefined

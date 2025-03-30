@@ -7,7 +7,6 @@ import { UserEntity } from 'modules/user/entities/user.entity';
 @Entity('sessions')
 export class SessionEntity {
   @PrimaryGeneratedColumn()
-  @Field(() => Int)
   id: number;
 
   @Column('uuid', { unique: true })
@@ -26,8 +25,9 @@ export class SessionEntity {
   @Field(() => UserEntity)
   user: UserEntity;
 
+  // JWT ID
   @Column({ unique: true })
-  nonceHash: string;
+  jtiHash: string;
 
   @Column({ type: 'varchar', nullable: true })
   @Field({ nullable: true })

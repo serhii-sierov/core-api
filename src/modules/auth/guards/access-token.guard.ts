@@ -19,6 +19,8 @@ export class AccessTokenGuard extends AuthGuard('jwt') {
 
     const { req, connectionParams } = ctx.getContext<GqlContext>();
 
+    // console.log('AccessTokenGuard', req.cookies);
+
     return connectionParams ?? req;
   }
 
@@ -31,6 +33,12 @@ export class AccessTokenGuard extends AuthGuard('jwt') {
     if (isPublic) {
       return true;
     }
+
+    // const ctx = GqlExecutionContext.create(context);
+
+    // const { req } = ctx.getContext<GqlContext>();
+
+    // console.log(req.cookies);
 
     return super.canActivate(context);
   }

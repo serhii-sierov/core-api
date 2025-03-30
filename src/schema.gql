@@ -3,7 +3,6 @@
 # ------------------------------------------------------
 
 type SessionEntity {
-  id: Int!
   sessionId: String!
   userId: Int!
   user: UserEntity!
@@ -37,23 +36,15 @@ type IdentityEntity {
   providerId: String!
 }
 
-type SignUpResponse {
-  userId: Int!
-}
-
-type SignInResponse {
-  userId: Int!
-}
-
 type Query {
   user: UserEntity!
 }
 
 type Mutation {
-  signUp(input: SignUpInput!): SignUpResponse!
-  signIn(input: SignInInput!): SignInResponse!
+  signUp(input: SignUpInput!): SessionEntity!
+  signIn(input: SignInInput!): SessionEntity!
   signOut: Boolean!
-  refreshToken: Boolean!
+  refreshTokens: SessionEntity!
   changePassword(input: ChangePasswordInput!): Boolean!
 }
 

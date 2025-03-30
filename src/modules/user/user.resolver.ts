@@ -12,6 +12,8 @@ export class UserResolver {
 
   @Query(() => UserEntity, { name: 'user' })
   getUser(@CurrentUser() contextUser: ContextUser): Promise<UserEntity | null> {
+    console.log('getUser', { contextUser });
+
     return this.userService.findOne({
       where: { id: contextUser.id },
       relations: { identities: true, sessions: true },

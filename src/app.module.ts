@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 
-import { AccessTokenGuard } from 'modules/auth/guards/accessToken.guard';
+import { AccessTokenGuard } from 'modules/auth/guards/access-token.guard';
 import { HealthModule } from 'modules/health';
 import { ScheduleModule } from 'modules/schedule/schedule.module';
 

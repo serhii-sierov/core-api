@@ -15,6 +15,11 @@ export type FindOne<Entity> = (
   transactionManager?: EntityManager,
 ) => Promise<Entity | null>;
 
+export type FindOneOrFail<Entity> = (
+  options: FindOneOptions<Entity>,
+  transactionManager?: EntityManager,
+) => Promise<Entity>;
+
 export type FindAll<Entity> = (
   options?: FindManyOptions<Entity>,
   transactionManager?: EntityManager,
