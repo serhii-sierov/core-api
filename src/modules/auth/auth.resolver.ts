@@ -7,7 +7,7 @@ import { SessionEntity } from 'modules/user/entities';
 import { ContextUser, GqlContext } from 'types';
 
 import { AuthService } from './auth.service';
-import { CurrentUser, Public } from './decorators';
+import { CurrentUser, OptionalCurrentUser, Public } from './decorators';
 import { ChangePasswordInput, SignInInput, SignUpInput } from './dto';
 import { RefreshTokenGuard } from './guards';
 
@@ -37,14 +37,13 @@ export class AuthResolver {
     const { req, res } = context;
     const { refreshToken } = req.cookies;
 
-    console.log(input, { cookies: req.cookies });
-
     return this.authService.signIn(input, res, { ipAddress, device }, refreshToken);
   }
 
+  @Public()
   @Mutation(() => Boolean)
-  signOut(@Context('res') res: Response, @CurrentUser() currentUser: ContextUser): Promise<boolean> {
-    return this.authService.signOut(currentUser.sessionId, res);
+  signOut(@Context('res') res: Response, @OptionalCurrentUser() currentUser: ContextUser | null): Promise<boolean> {
+    return this.authService.signOut(res, currentUser?.sessionId);
   }
 
   @UseGuards(RefreshTokenGuard)

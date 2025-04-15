@@ -2,7 +2,6 @@ import { ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { AuthGuard } from '@nestjs/passport';
-import { Observable } from 'rxjs';
 
 import { AppRequest, GqlContext, WebSocketConnectionParams } from 'types';
 
@@ -16,30 +15,41 @@ export class AccessTokenGuard extends AuthGuard('jwt') {
 
   getRequest(context: ExecutionContext): AppRequest | WebSocketConnectionParams {
     const ctx = GqlExecutionContext.create(context);
-
     const { req, connectionParams } = ctx.getContext<GqlContext>();
-
-    // console.log('AccessTokenGuard', req.cookies);
 
     return connectionParams ?? req;
   }
 
-  canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
       context.getHandler(),
       context.getClass(),
     ]);
 
     if (isPublic) {
+      // For public routes, try to extract the user but don't require authentication
+      await this.extractUserOptionally(context);
+
       return true;
     }
 
-    // const ctx = GqlExecutionContext.create(context);
+    // For protected routes, require authentication
+    return super.canActivate(context) as Promise<boolean>;
+  }
 
-    // const { req } = ctx.getContext<GqlContext>();
+  private async extractUserOptionally(context: ExecutionContext): Promise<void> {
+    try {
+      // Try to authenticate and extract user from token without throwing errors
+      const ctx = GqlExecutionContext.create(context);
+      const req = ctx.getContext<GqlContext>().req;
 
-    // console.log(req.cookies);
-
-    return super.canActivate(context);
+      if (req.cookies.accessToken) {
+        // Use the guard's authentication mechanism directly
+        await super.canActivate(context);
+      }
+    } catch (error: unknown) {
+      // Ignore authentication errors for public routes
+      console.log('Optional auth failed:', error instanceof Error ? error.message : 'Unknown error');
+    }
   }
 }

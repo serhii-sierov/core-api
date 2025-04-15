@@ -186,12 +186,16 @@ export class AuthService {
     return null;
   };
 
-  signOut = async (sessionId: string, res: Response): Promise<boolean> => {
-    const deletedRows = await this.sessionService.destroy({ sessionId });
-
+  signOut = async (res: Response, sessionId?: string): Promise<boolean> => {
     this.clearTokensCookie(res);
 
-    return Boolean(deletedRows);
+    if (sessionId) {
+      const deletedRows = await this.sessionService.destroy({ sessionId });
+
+      return Boolean(deletedRows);
+    }
+
+    return true;
   };
 
   refreshToken = async (refreshToken: string, deviceInfo: DeviceInfo, res: Response): Promise<SessionEntity | null> => {

@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
 
 import { AccessTokenGuard } from 'modules/auth/guards/access-token.guard';
 import { HealthModule } from 'modules/health';
@@ -12,7 +13,7 @@ import { UserModule } from './modules/user/user.module';
   imports: [SharedModule, HealthModule, UserModule, AuthModule, ScheduleModule],
   providers: [
     {
-      provide: 'APP_GUARD',
+      provide: APP_GUARD,
       useClass: AccessTokenGuard,
     },
   ],
