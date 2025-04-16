@@ -6,7 +6,12 @@ import { format, transports } from 'winston';
 import { AppConfigService } from '../config/config.service';
 
 const getTransports = (configService: AppConfigService): transports.ConsoleTransportInstance[] => {
-  const defaultFormat: Format = format.combine(format.timestamp(), utilities.format.nestLike());
+  const defaultFormat: Format = format.combine(
+    format.timestamp({
+      format: 'YYYY-MM-DD hh:mm:ss.SSS A',
+    }),
+    utilities.format.nestLike('Logger', { prettyPrint: true, colors: true }),
+  );
 
   const activeTransports: transports.ConsoleTransportInstance[] = [
     new transports.Console({
