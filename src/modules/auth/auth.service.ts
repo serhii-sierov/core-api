@@ -2,6 +2,7 @@ import { AppCookie } from '@constants';
 import { BadRequestException, Inject, Injectable, LoggerService, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Response } from 'express';
+import { OAuth2Client } from 'google-auth-library';
 import * as jwt from 'jsonwebtoken';
 import ms from 'ms';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
@@ -9,19 +10,21 @@ import { DataSource } from 'typeorm';
 import { v4 as uuid } from 'uuid';
 
 import { AppConfigService } from 'modules/shared/modules/config';
-import { JwtConfig } from 'modules/shared/modules/config/loaders';
+import { GoogleConfig, JwtConfig } from 'modules/shared/modules/config/loaders';
 import { SessionEntity } from 'modules/user/entities';
 import { UserEntity } from 'modules/user/entities/user.entity';
 import { SessionService, UserService } from 'modules/user/services';
 import { compareHash, generateRandomSecret, hash } from 'utils';
 
 import { ErrorMessage } from './constants';
-import { SignInInput, SignUpInput } from './dto';
+import { SignInCredentialsInput, SignInGoogleInput, SignUpInput } from './dto';
 import { AdditionalJwtPayload, DeviceInfo, GenerateTokensResult, JwtPayload, Tokens } from './types';
+import { SignInOptions, SignInOptionsBase } from './types/sign-in-options';
 
 @Injectable()
 export class AuthService {
   private readonly jwtConfig: JwtConfig;
+  private readonly googleConfig: GoogleConfig;
   private readonly isProduction: boolean;
 
   constructor(
@@ -33,6 +36,7 @@ export class AuthService {
     @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly loggerService: LoggerService,
   ) {
     this.jwtConfig = this.configService.get('jwt');
+    this.googleConfig = this.configService.get('google');
     this.isProduction = this.configService.isProduction();
   }
 
@@ -86,21 +90,10 @@ export class AuthService {
     });
   };
 
-  signIn = async (
-    input: SignInInput,
-    res: Response,
-    deviceInfo?: DeviceInfo,
-    requestRefreshToken?: string,
-  ): Promise<SessionEntity> => {
-    const { email, password, forceNewSession } = input;
+  signIn = async (user: UserEntity, res: Response, options: SignInOptions): Promise<SessionEntity> => {
+    const { forceNewSession, deviceInfo, requestRefreshToken } = options;
     const { ipAddress, device } = deviceInfo ?? {};
     const location = ipAddress && (await this.resolveLocation(ipAddress));
-
-    const user = await this.validateUser(email, password);
-
-    if (!user) {
-      throw new UnauthorizedException(ErrorMessage.INVALID_CREDENTIALS);
-    }
 
     let sessionId = uuid();
     let isSessionExists = false;
@@ -127,7 +120,7 @@ export class AuthService {
       }
     }
 
-    const tokens = await this.generateTokens(user.id, { email, sessionId });
+    const tokens = await this.generateTokens(user.id, { email: user.email, sessionId });
 
     this.setTokensCookie(tokens, res);
 
@@ -154,6 +147,47 @@ export class AuthService {
       where: { sessionId },
       relations: { user: { identities: true } },
     });
+  };
+
+  signInCredentials = async (
+    input: SignInCredentialsInput,
+    res: Response,
+    options: SignInOptionsBase,
+  ): Promise<SessionEntity> => {
+    const { email, password, forceNewSession } = input;
+    const user = await this.validateUser(email, password);
+
+    if (!user) {
+      throw new UnauthorizedException(ErrorMessage.INVALID_CREDENTIALS);
+    }
+
+    return this.signIn(user, res, { ...options, forceNewSession });
+  };
+
+  signInGoogle = async (
+    input: SignInGoogleInput,
+    res: Response,
+    options: SignInOptionsBase,
+  ): Promise<SessionEntity> => {
+    const { idToken, forceNewSession } = input;
+
+    const client = new OAuth2Client(this.googleConfig.clientId);
+
+    const ticket = await client.verifyIdToken({
+      idToken,
+      audience: this.googleConfig.clientId,
+    });
+
+    const payload = ticket.getPayload();
+
+    // TODO: Check if user exists, if not create user, and create identity
+    const user = await this.userService.findOne({ where: { email: payload?.email } });
+
+    if (!user) {
+      throw new UnauthorizedException(ErrorMessage.INVALID_GOOGLE_ID_TOKEN);
+    }
+
+    return this.signIn(user, res, { ...options, forceNewSession });
   };
 
   generateTokens = async (userId: number, payload: AdditionalJwtPayload): Promise<GenerateTokensResult> => {

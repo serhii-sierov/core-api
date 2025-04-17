@@ -8,7 +8,7 @@ import { ContextUser, GqlContext } from 'types';
 
 import { AuthService } from './auth.service';
 import { CurrentUser, OptionalCurrentUser, Public } from './decorators';
-import { ChangePasswordInput, SignInInput, SignUpInput } from './dto';
+import { ChangePasswordInput, SignInCredentialsInput, SignInGoogleInput, SignUpInput } from './dto';
 import { RefreshTokenGuard } from './guards';
 
 @Resolver()
@@ -28,8 +28,8 @@ export class AuthResolver {
 
   @Public()
   @Mutation(() => SessionEntity)
-  signIn(
-    @Args('input') input: SignInInput,
+  signInCredentials(
+    @Args('input') input: SignInCredentialsInput,
     @Context() context: GqlContext,
     @UserAgent('summary') device?: string,
     @IpAddress() ipAddress?: string,
@@ -37,7 +37,29 @@ export class AuthResolver {
     const { req, res } = context;
     const { refreshToken } = req.cookies;
 
-    return this.authService.signIn(input, res, { ipAddress, device }, refreshToken);
+    console.log('input', device);
+
+    return this.authService.signInCredentials(input, res, {
+      deviceInfo: { ipAddress, device },
+      requestRefreshToken: refreshToken,
+    });
+  }
+
+  @Public()
+  @Mutation(() => SessionEntity)
+  signInGoogle(
+    @Args('input') input: SignInGoogleInput,
+    @Context() context: GqlContext,
+    @UserAgent('summary') device?: string,
+    @IpAddress() ipAddress?: string,
+  ): Promise<SessionEntity> {
+    const { req, res } = context;
+    const { refreshToken } = req.cookies;
+
+    return this.authService.signInGoogle(input, res, {
+      deviceInfo: { ipAddress, device },
+      requestRefreshToken: refreshToken,
+    });
   }
 
   @Public()

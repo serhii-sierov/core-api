@@ -42,7 +42,8 @@ type Query {
 
 type Mutation {
   signUp(input: SignUpInput!): SessionEntity!
-  signIn(input: SignInInput!): SessionEntity!
+  signInCredentials(input: SignInCredentialsInput!): SessionEntity!
+  signInGoogle(input: SignInGoogleInput!): SessionEntity!
   signOut: Boolean!
   refreshTokens: SessionEntity!
   changePassword(input: ChangePasswordInput!): Boolean!
@@ -53,10 +54,15 @@ input SignUpInput {
   password: String!
 }
 
-input SignInInput {
+input SignInCredentialsInput {
+  forceNewSession: Boolean
   email: String!
   password: String!
+}
+
+input SignInGoogleInput {
   forceNewSession: Boolean
+  idToken: String!
 }
 
 input ChangePasswordInput {
