@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
 
-import { Create, Destroy, FindAll, FindOne, Increment, Update } from 'types';
+import { Create, Destroy, FindAll, FindOne, FindOrCreate, Increment, Update } from 'types';
 
 import { IdentityEntity, UserEntity } from '../entities';
 
@@ -37,6 +37,20 @@ export class UserService {
     const user = repository.create(data);
 
     return repository.save(user);
+  };
+
+  findOrCreate: FindOrCreate<UserEntity> = async (options, defaults, transactionManager) => {
+    const repository = this.getRepository(transactionManager);
+
+    const user = await repository.findOne(options);
+
+    if (user) {
+      return [user, false];
+    }
+
+    const newUser = await this.create(defaults, transactionManager);
+
+    return [newUser, true];
   };
 
   increment: Increment<UserEntity> = async (options, transactionManager) => {

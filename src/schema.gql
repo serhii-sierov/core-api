@@ -22,6 +22,8 @@ scalar DateTime
 type UserEntity {
   id: Int!
   email: String!
+  name: String
+  picture: String
   identities: [IdentityEntity!]!
   sessions: [SessionEntity!]!
   createdAt: DateTime!

@@ -14,6 +14,7 @@ import { GoogleConfig, JwtConfig } from 'modules/shared/modules/config/loaders';
 import { SessionEntity } from 'modules/user/entities';
 import { UserEntity } from 'modules/user/entities/user.entity';
 import { SessionService, UserService } from 'modules/user/services';
+import { IdentityProvider } from 'modules/user/types';
 import { compareHash, generateRandomSecret, hash } from 'utils';
 
 import { ErrorMessage } from './constants';
@@ -91,12 +92,12 @@ export class AuthService {
   };
 
   signIn = async (user: UserEntity, res: Response, options: SignInOptions): Promise<SessionEntity> => {
-    const { forceNewSession, deviceInfo, requestRefreshToken } = options;
+    const { forceNewSession, deviceInfo, requestRefreshToken, provider } = options;
     const { ipAddress, device } = deviceInfo ?? {};
     const location = ipAddress && (await this.resolveLocation(ipAddress));
 
     let sessionId = uuid();
-    let isSessionExists = false;
+    let isExistingSession = false;
 
     if (requestRefreshToken) {
       const { sessionId: prevSessionId, jti } = jwt.verify(
@@ -115,12 +116,12 @@ export class AuthService {
           await this.sessionService.destroy({ sessionId: prevSessionId });
         } else {
           sessionId = existingSession?.sessionId;
-          isSessionExists = true;
+          isExistingSession = true;
         }
       }
     }
 
-    const tokens = await this.generateTokens(user.id, { email: user.email, sessionId });
+    const tokens = await this.generateTokens(user.id, { email: user.email, sessionId, provider });
 
     this.setTokensCookie(tokens, res);
 
@@ -137,7 +138,7 @@ export class AuthService {
       device,
     };
 
-    if (isSessionExists) {
+    if (isExistingSession) {
       await this.sessionService.update({ sessionId }, session);
     } else {
       await this.sessionService.create({ sessionId, ...session });
@@ -155,13 +156,22 @@ export class AuthService {
     options: SignInOptionsBase,
   ): Promise<SessionEntity> => {
     const { email, password, forceNewSession } = input;
-    const user = await this.validateUser(email, password);
+    const user = await this.validateCredentialsAndGetUser(email, password);
 
     if (!user) {
       throw new UnauthorizedException(ErrorMessage.INVALID_CREDENTIALS);
     }
 
-    return this.signIn(user, res, { ...options, forceNewSession });
+    const identity = user.identities?.find(item => item.provider === IdentityProvider.CREDENTIALS);
+
+    if (!identity) {
+      await this.userService.addIdentity(user, {
+        provider: IdentityProvider.CREDENTIALS,
+        providerId: String(user.id),
+      });
+    }
+
+    return this.signIn(user, res, { ...options, forceNewSession, provider: IdentityProvider.CREDENTIALS });
   };
 
   signInGoogle = async (
@@ -181,13 +191,33 @@ export class AuthService {
     const payload = ticket.getPayload();
 
     // TODO: Check if user exists, if not create user, and create identity
-    const user = await this.userService.findOne({ where: { email: payload?.email } });
+    const [user] = await this.userService.findOrCreate(
+      { where: { email: payload?.email }, relations: { identities: true } },
+      { email: payload?.email, name: payload?.name, picture: payload?.picture },
+    );
 
     if (!user) {
       throw new UnauthorizedException(ErrorMessage.INVALID_GOOGLE_ID_TOKEN);
     }
 
-    return this.signIn(user, res, { ...options, forceNewSession });
+    console.log({ payload });
+    console.log({ user });
+
+    if (!user.picture && payload?.picture) {
+      await this.userService.update({ id: user.id }, { picture: payload.picture });
+    }
+
+    if (!user.name && payload?.name) {
+      await this.userService.update({ id: user.id }, { name: payload.name });
+    }
+
+    const identity = user.identities?.find(item => item.provider === IdentityProvider.GOOGLE);
+
+    if (!identity) {
+      await this.userService.addIdentity(user, { provider: IdentityProvider.GOOGLE, providerId: payload?.sub });
+    }
+
+    return this.signIn(user, res, { ...options, forceNewSession, provider: IdentityProvider.GOOGLE });
   };
 
   generateTokens = async (userId: number, payload: AdditionalJwtPayload): Promise<GenerateTokensResult> => {
@@ -210,8 +240,12 @@ export class AuthService {
     return { accessToken, refreshToken, jti };
   };
 
-  validateUser = async (email: string, password: string): Promise<UserEntity | null> => {
-    const user = await this.userService.findOne({ where: { email } });
+  validateCredentialsAndGetUser = async (email: string, password: string): Promise<UserEntity | null> => {
+    if (!email || !password) {
+      throw new BadRequestException(ErrorMessage.INVALID_CREDENTIALS);
+    }
+
+    const user = await this.userService.findOne({ where: { email }, relations: { identities: true } });
 
     if (user?.password && (await this.validatePassword(password, user.password))) {
       return user;

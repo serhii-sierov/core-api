@@ -1,3 +1,5 @@
+import { IdentityProvider } from 'modules/user/types';
+
 import { DeviceInfo } from '../types';
 
 export type SignInOptionsBase = {
@@ -6,5 +8,6 @@ export type SignInOptionsBase = {
 };
 
 export type SignInOptions = SignInOptionsBase & {
+  provider: IdentityProvider;
   forceNewSession?: boolean;
 };

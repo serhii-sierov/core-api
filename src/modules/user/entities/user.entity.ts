@@ -17,6 +17,14 @@ export class UserEntity {
   email: string;
 
   @Column({ type: 'varchar', nullable: true })
+  @Field({ nullable: true })
+  name?: string;
+
+  @Column({ type: 'varchar', nullable: true })
+  @Field({ nullable: true })
+  picture?: string;
+
+  @Column({ type: 'varchar', nullable: true })
   password?: string; // For local users
 
   @OneToMany(() => IdentityEntity, identity => identity.user, { cascade: true })

@@ -61,7 +61,8 @@ export type Increment<Entity> = (
 
 export type FindOrCreate<Entity> = (
   options: FindOneOptions<Entity>,
-  defaults?: DeepPartial<Entity>,
+  defaults: DeepPartial<Entity>,
+  transactionManager?: EntityManager,
 ) => Promise<[Entity, boolean]>;
 
 export type Optional<Target, Key extends keyof Target> = Omit<Target, Key> & Partial<Target>;

@@ -1,11 +1,14 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql';
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn, Unique } from 'typeorm';
 
 // eslint-disable-next-line import/no-cycle -- Circular dependency inevitable here
 import { UserEntity } from './user.entity';
 
+import { IdentityProvider } from '../types';
+
 @ObjectType()
 @Entity('identities')
+@Unique(['provider', 'providerId'])
 export class IdentityEntity {
   @PrimaryGeneratedColumn()
   @Field(() => Int)
@@ -25,7 +28,7 @@ export class IdentityEntity {
 
   @Column()
   @Field()
-  provider: string; // E.g., 'google', 'facebook'
+  provider: IdentityProvider;
 
   @Column()
   @Field()
