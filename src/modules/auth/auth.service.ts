@@ -19,7 +19,14 @@ import { compareHash, generateRandomSecret, hash } from 'utils';
 
 import { ErrorMessage } from './constants';
 import { SignInCredentialsInput, SignInGoogleInput, SignUpInput } from './dto';
-import { AdditionalJwtPayload, DeviceInfo, GenerateTokensResult, JwtPayload, Tokens } from './types';
+import {
+  AdditionalJwtPayload,
+  DeviceInfo,
+  GenerateTokensResult,
+  HandleSessionOptions,
+  JwtPayload,
+  Tokens,
+} from './types';
 import { SignInOptions, SignInOptionsBase } from './types/sign-in-options';
 
 @Injectable()
@@ -43,21 +50,19 @@ export class AuthService {
 
   signUp = async (input: SignUpInput, res: Response, deviceInfo?: DeviceInfo): Promise<SessionEntity> => {
     const { email, password } = input;
-    const { ipAddress, device } = deviceInfo ?? {};
-    const location = ipAddress && (await this.resolveLocation(ipAddress));
-
-    let user = await this.userService.findOne({
-      where: { email },
-      relations: { identities: true },
-    });
-
-    if (user?.identities?.some(item => item.provider === IdentityProvider.CREDENTIALS)) {
-      throw new BadRequestException(ErrorMessage.USERS_CREDENTIALS_ALREADY_EXIST);
-    }
-
     const hashedPassword = await hash(password);
 
     return this.dataSource.transaction(async manager => {
+      // Find or create user
+      let user = await this.userService.findOne({
+        where: { email },
+        relations: { identities: true },
+      });
+
+      if (user?.identities?.some(item => item.provider === IdentityProvider.CREDENTIALS)) {
+        throw new BadRequestException(ErrorMessage.USERS_CREDENTIALS_ALREADY_EXIST);
+      }
+
       if (!user) {
         user = await this.userService.create(
           {
@@ -70,6 +75,7 @@ export class AuthService {
         await this.userService.update({ id: user.id }, { password: hashedPassword }, manager);
       }
 
+      // Add credentials identity
       const identity = await this.userService.addIdentity(
         user,
         {
@@ -79,29 +85,7 @@ export class AuthService {
         manager,
       );
 
-      const sessionId = uuid();
-
-      const tokens = await this.generateTokens(user.id, { email, sessionId });
-
-      this.setTokensCookie(tokens, res);
-
-      const expiresAt = new Date(Date.now() + ms(this.jwtConfig.refreshToken.expiresIn));
-
-      const jtiHash = await hash(tokens.jti);
-
-      return this.sessionService.create(
-        {
-          sessionId,
-          userId: user.id,
-          jtiHash,
-          expiresAt,
-          ipAddress,
-          location,
-          device,
-          identityId: identity.id,
-        },
-        manager,
-      );
+      return this.establishSession(user, res, { deviceInfo, identity }, manager);
     });
   };
 
@@ -112,8 +96,6 @@ export class AuthService {
     transactionManager?: EntityManager,
   ): Promise<SessionEntity> => {
     const { forceNewSession, deviceInfo, requestRefreshToken, identity } = options;
-    const { ipAddress, device } = deviceInfo ?? {};
-    const location = ipAddress && (await this.resolveLocation(ipAddress));
 
     let sessionId = uuid();
     let isExistingSession = false;
@@ -140,36 +122,7 @@ export class AuthService {
       }
     }
 
-    const tokens = await this.generateTokens(user.id, { email: user.email, sessionId, provider: identity.provider });
-
-    this.setTokensCookie(tokens, res);
-
-    const expiresAt = new Date(Date.now() + ms(this.jwtConfig.refreshToken.expiresIn));
-
-    const jtiHash = await hash(tokens.jti);
-
-    const session: Partial<SessionEntity> = {
-      userId: user.id,
-      jtiHash,
-      expiresAt,
-      ipAddress,
-      location,
-      device,
-    };
-
-    if (isExistingSession) {
-      await this.sessionService.update({ sessionId }, session, transactionManager);
-    } else {
-      await this.sessionService.create({ sessionId, ...session, identityId: identity.id }, transactionManager);
-    }
-
-    return this.sessionService.findOneOrFail(
-      {
-        where: { sessionId },
-        relations: { user: { identities: true }, identity: true },
-      },
-      transactionManager,
-    );
+    return this.establishSession(user, res, { deviceInfo, identity, sessionId, isExistingSession }, transactionManager);
   };
 
   signInCredentials = async (
@@ -297,7 +250,7 @@ export class AuthService {
 
     const tokens = await this.generateTokens(user.id, { email: user.email, sessionId });
 
-    console.log({ 'OLD TOKEN': refreshToken, 'NEW TOKEN': tokens.refreshToken });
+    this.loggerService.debug?.({ OLD_TOKEN: refreshToken, NEW_TOKEN: tokens.refreshToken }, 'REFRESH TOKEN');
 
     this.setTokensCookie(tokens, res);
 
@@ -336,6 +289,59 @@ export class AuthService {
       throw new UnauthorizedException();
     }
     // Send email with reset link or token
+  };
+
+  /**
+   * Establishes a session for a user (creates or updates a session entity and sets the tokens cookie).
+   * @param user - The user entity to establish the session for.
+   * @param res - The response object to set the tokens cookie on.
+   * @param options - The options for establishing the session.
+   * @param transactionManager - The transaction manager to use for the operation.
+   * @returns The session entity that was established.
+   */
+  private readonly establishSession = async (
+    user: UserEntity,
+    res: Response,
+    options: HandleSessionOptions,
+    transactionManager?: EntityManager,
+  ): Promise<SessionEntity> => {
+    const { deviceInfo, identity, sessionId = uuid(), isExistingSession = false } = options;
+    const { ipAddress, device } = deviceInfo ?? {};
+    const location = ipAddress && (await this.resolveLocation(ipAddress));
+
+    const tokens = await this.generateTokens(user.id, {
+      email: user.email,
+      sessionId,
+      provider: identity.provider,
+    });
+
+    this.setTokensCookie(tokens, res);
+
+    const expiresAt = new Date(Date.now() + ms(this.jwtConfig.refreshToken.expiresIn));
+    const jtiHash = await hash(tokens.jti);
+
+    const session: Partial<SessionEntity> = {
+      userId: user.id,
+      jtiHash,
+      expiresAt,
+      ipAddress,
+      location,
+      device,
+    };
+
+    if (isExistingSession) {
+      await this.sessionService.update({ sessionId }, session, transactionManager);
+    } else {
+      await this.sessionService.create({ sessionId, ...session, identityId: identity.id }, transactionManager);
+    }
+
+    return this.sessionService.findOneOrFail(
+      {
+        where: { sessionId },
+        relations: { user: { identities: true }, identity: true },
+      },
+      transactionManager,
+    );
   };
 
   private readonly resolveLocation = (_ipAddress: string): Promise<string | null> => {
