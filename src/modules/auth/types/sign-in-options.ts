@@ -1,4 +1,4 @@
-import { IdentityProvider } from 'modules/user/types';
+import { IdentityEntity } from 'modules/user/entities';
 
 import { DeviceInfo } from '../types';
 
@@ -8,6 +8,6 @@ export type SignInOptionsBase = {
 };
 
 export type SignInOptions = SignInOptionsBase & {
-  provider: IdentityProvider;
+  identity: IdentityEntity;
   forceNewSession?: boolean;
 };

@@ -3,6 +3,9 @@ import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, Up
 
 import { UserEntity } from 'modules/user/entities/user.entity';
 
+// eslint-disable-next-line import/no-cycle -- Circular dependency inevitable here
+import { IdentityEntity } from './identity.entity';
+
 @ObjectType()
 @Entity('sessions')
 export class SessionEntity {
@@ -16,6 +19,18 @@ export class SessionEntity {
   @Column()
   @Field(() => Int)
   userId: number;
+
+  @Column()
+  @Field(() => Int)
+  identityId: number;
+
+  @ManyToOne(() => IdentityEntity, identity => identity.sessions, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+    cascade: ['insert', 'update'],
+  })
+  @Field(() => IdentityEntity)
+  identity: IdentityEntity;
 
   @ManyToOne(() => UserEntity, user => user.sessions, {
     onDelete: 'CASCADE',

@@ -28,7 +28,7 @@ export class AuthResolver {
 
   @Public()
   @Mutation(() => SessionEntity)
-  signInCredentials(
+  signIn(
     @Args('input') input: SignInCredentialsInput,
     @Context() context: GqlContext,
     @UserAgent('summary') device?: string,
@@ -36,8 +36,6 @@ export class AuthResolver {
   ): Promise<SessionEntity> {
     const { req, res } = context;
     const { refreshToken } = req.cookies;
-
-    console.log('input', device);
 
     return this.authService.signInCredentials(input, res, {
       deviceInfo: { ipAddress, device },

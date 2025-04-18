@@ -22,7 +22,7 @@ export class UserResolver {
 
     return this.userService.findOne({
       where: { id: contextUser.id },
-      relations: { identities: true, sessions: true },
+      relations: { identities: true, sessions: { identity: true } },
     });
   }
 }

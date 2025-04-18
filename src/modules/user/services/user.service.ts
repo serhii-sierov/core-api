@@ -79,9 +79,15 @@ export class UserService {
     return affected ?? 0;
   };
 
-  async addIdentity(user: UserEntity, identityData: Partial<IdentityEntity>): Promise<IdentityEntity> {
-    const identity = this.identityRepository.create({ ...identityData, user });
+  async addIdentity(
+    user: UserEntity,
+    identityData: Partial<IdentityEntity>,
+    transactionManager?: EntityManager,
+  ): Promise<IdentityEntity> {
+    const repository = transactionManager ? transactionManager.getRepository(IdentityEntity) : this.identityRepository;
 
-    return this.identityRepository.save(identity);
+    const identity = repository.create({ ...identityData, user: { id: user.id } });
+
+    return repository.save(identity);
   }
 }

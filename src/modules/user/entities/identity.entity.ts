@@ -1,6 +1,8 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql';
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn, Unique } from 'typeorm';
+import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, Unique } from 'typeorm';
 
+// eslint-disable-next-line import/no-cycle -- Circular dependency inevitable here
+import { SessionEntity } from './session.entity';
 // eslint-disable-next-line import/no-cycle -- Circular dependency inevitable here
 import { UserEntity } from './user.entity';
 
@@ -33,4 +35,8 @@ export class IdentityEntity {
   @Column()
   @Field()
   providerId: string; // Unique ID from the OAuth provider
+
+  @OneToMany(() => SessionEntity, session => session.identity)
+  @Field(() => [SessionEntity])
+  sessions: SessionEntity[];
 }
