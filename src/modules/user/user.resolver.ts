@@ -1,6 +1,4 @@
-import { Inject, LoggerService } from '@nestjs/common';
 import { Query, Resolver } from '@nestjs/graphql';
-import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 
 import { CurrentUser } from 'modules/auth/decorators';
 import { ContextUser } from 'types';
@@ -10,16 +8,10 @@ import { UserService } from './services';
 
 @Resolver(() => UserEntity)
 export class UserResolver {
-  constructor(
-    private readonly userService: UserService,
-    @Inject(WINSTON_MODULE_NEST_PROVIDER)
-    private readonly loggerService: LoggerService,
-  ) {}
+  constructor(private readonly userService: UserService) {}
 
   @Query(() => UserEntity, { name: 'user' })
   getUser(@CurrentUser() contextUser: ContextUser): Promise<UserEntity | null> {
-    this.loggerService.log({ contextUser }, this.constructor.name);
-
     return this.userService.findOne({
       where: { id: contextUser.id },
       relations: { identities: true, sessions: { identity: true } },
